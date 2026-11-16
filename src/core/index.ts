@@ -4,4 +4,5 @@
 export * from "./types.js";
 export * from "./schemas.js";
 export * from "./sentiment.js";
+export * from "./utils.js";
 

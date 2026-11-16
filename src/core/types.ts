@@ -65,11 +65,11 @@ export interface RatingSnapshot {
   averageRating: number;
   totalRatings: number;
   ratingBreakdown?: {
-    1: number;
-    2: number;
-    3: number;
-    4: number;
-    5: number;
+    1?: number;
+    2?: number;
+    3?: number;
+    4?: number;
+    5?: number;
   };
   country: string;
   collectedAt: string;
@@ -153,5 +153,87 @@ export interface IStoreProvider {
     config: AppConfig,
     options?: { maxCount?: number }
   ): Promise<ProviderResult<Review[]>>;
+}
+
+/**
+ * Interface biểu diễn kết quả thu thập của một chu kỳ crawl
+ */
+export interface CollectionCycleResult {
+  runId: string;
+  appId: string;
+  status: CollectionStatus;
+  startedAt: string;
+  completedAt: string;
+  durationMs: number;
+  platforms: {
+    android?: {
+      status: CollectionStatus;
+      snapshotSaved: boolean;
+      reviewsCollected: number;
+      newReviewsSaved: number;
+      duplicatesSkipped: number;
+      error?: string;
+    };
+    ios?: {
+      status: CollectionStatus;
+      snapshotSaved: boolean;
+      reviewsCollected: number;
+      newReviewsSaved: number;
+      duplicatesSkipped: number;
+      error?: string;
+    };
+  };
+  totalNewReviewsSaved: number;
+  error?: string;
+}
+
+/**
+ * Interface cấu trúc log một phiên thu thập lưu trữ vào collection-logs
+ */
+export interface CollectionLog {
+  logId: string;
+  timestamp: string;
+  cycleResult: CollectionCycleResult;
+}
+
+/**
+ * Interface tổng quan số liệu toàn diện của ứng dụng UniClass
+ */
+export interface AppOverview {
+  appId: string;
+  totalReviews: number;
+  overallSentiment: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+  platforms: {
+    android?: {
+      totalReviews: number;
+      averageRatingReviews: number;
+      latestSnapshot?: {
+        averageRating: number;
+        totalRatings: number;
+        collectedAt: string;
+        ratingBreakdown?: {
+          1?: number;
+          2?: number;
+          3?: number;
+          4?: number;
+          5?: number;
+        };
+      };
+    };
+    ios?: {
+      totalReviews: number;
+      averageRatingReviews: number;
+      latestSnapshot?: {
+        averageRating: number;
+        totalRatings: number;
+        collectedAt: string;
+      };
+    };
+  };
+  updatedAt: string;
 }
 

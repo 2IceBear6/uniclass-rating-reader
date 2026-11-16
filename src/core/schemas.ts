@@ -120,3 +120,48 @@ export const DailyStatsSchema = z.object({
   calculatedAt: z.string().datetime(),
 });
 
+/**
+ * Zod Schema xác thực kết quả của một chu kỳ thu thập
+ */
+export const CollectionCycleResultSchema = z.object({
+  runId: z.string().uuid(),
+  appId: z.string().min(1),
+  status: z.enum(["SUCCESS", "PARTIAL", "UNAVAILABLE"]),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime(),
+  durationMs: z.number().nonnegative(),
+  platforms: z.object({
+    android: z
+      .object({
+        status: z.enum(["SUCCESS", "PARTIAL", "UNAVAILABLE"]),
+        snapshotSaved: z.boolean(),
+        reviewsCollected: z.number().int().nonnegative(),
+        newReviewsSaved: z.number().int().nonnegative(),
+        duplicatesSkipped: z.number().int().nonnegative(),
+        error: z.string().optional(),
+      })
+      .optional(),
+    ios: z
+      .object({
+        status: z.enum(["SUCCESS", "PARTIAL", "UNAVAILABLE"]),
+        snapshotSaved: z.boolean(),
+        reviewsCollected: z.number().int().nonnegative(),
+        newReviewsSaved: z.number().int().nonnegative(),
+        duplicatesSkipped: z.number().int().nonnegative(),
+        error: z.string().optional(),
+      })
+      .optional(),
+  }),
+  totalNewReviewsSaved: z.number().int().nonnegative(),
+  error: z.string().optional(),
+});
+
+/**
+ * Zod Schema xác thực bản ghi nhật ký phiên thu thập
+ */
+export const CollectionLogSchema = z.object({
+  logId: z.string().uuid(),
+  timestamp: z.string().datetime(),
+  cycleResult: CollectionCycleResultSchema,
+});
+
