@@ -6,6 +6,7 @@ import type {
   CollectionLog,
 } from "../core/types.js";
 import { CollectionCycleResultSchema, CollectionLogSchema } from "../core/schemas.js";
+import { assertUniClassApp } from "../core/utils.js";
 import { LocalStorageEngine } from "../storage/index.js";
 import { GooglePlayProvider } from "../providers/google-play/index.js";
 import { AppStoreProvider } from "../providers/app-store/index.js";
@@ -43,7 +44,7 @@ export class CollectorService {
     this.googlePlayProvider = options.googlePlayProvider ?? new GooglePlayProvider();
     this.appStoreProvider = options.appStoreProvider ?? new AppStoreProvider();
     this.analyticsEngine = options.analyticsEngine ?? new AnalyticsEngine({ storage: this.storage });
-    this.maxReviewsPerStore = options.maxReviewsPerStore ?? 50;
+    this.maxReviewsPerStore = options.maxReviewsPerStore ?? 100;
   }
 
   /**
@@ -64,6 +65,8 @@ export class CollectorService {
     appId: string = "uniclass",
     maxReviews?: number
   ): Promise<CollectionCycleResult> {
+    assertUniClassApp(appId);
+
     if (this.activeAppRuns.has(appId)) {
       throw new Error(`Ứng dụng ${appId} đang có một phiên thu thập dữ liệu đang chạy`);
     }

@@ -28,9 +28,11 @@ export const IosPlatformConfigSchema = z.object({
  * Zod Schema xác thực cấu hình ứng dụng UniClass
  */
 export const AppConfigSchema = z.object({
-  id: z.string().min(1),
+  id: z.string().regex(/^uniclass(-[a-z0-9]+)?$/, {
+    message: "Chỉ chấp nhận các ứng dụng thuộc hệ sinh thái UniClass (id bắt đầu bằng 'uniclass')",
+  }),
   name: z.string().min(1),
-  organization: z.string().default("UniClass"),
+  organization: z.literal("UniClass"),
   scope: z.literal("uniclass-only"),
   platforms: z.object({
     android: AndroidPlatformConfigSchema.optional(),
@@ -45,7 +47,9 @@ export const AppConfigSchema = z.object({
  */
 export const RatingSnapshotSchema = z.object({
   snapshotId: z.string().uuid(),
-  appId: z.string().min(1),
+  appId: z.string().regex(/^uniclass(-[a-z0-9]+)?$/, {
+    message: "Hệ thống chỉ theo dõi ứng dụng UniClass",
+  }),
   platform: z.enum(["android", "ios"]),
   averageRating: z.number().min(0).max(5),
   totalRatings: z.number().int().nonnegative(),
@@ -68,7 +72,9 @@ export const RatingSnapshotSchema = z.object({
 export const ReviewSchema = z.object({
   id: z.string().min(1),
   externalReviewId: z.string().min(1),
-  appId: z.string().min(1),
+  appId: z.string().regex(/^uniclass(-[a-z0-9]+)?$/, {
+    message: "Hệ thống chỉ theo dõi ứng dụng UniClass",
+  }),
   platform: z.enum(["android", "ios"]),
   rating: z.number().int().min(1).max(5),
   title: z.string().nullable(),
@@ -86,7 +92,9 @@ export const ReviewSchema = z.object({
  */
 export const DailyStatsSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  appId: z.string().min(1),
+  appId: z.string().regex(/^uniclass(-[a-z0-9]+)?$/, {
+    message: "Hệ thống chỉ theo dõi ứng dụng UniClass",
+  }),
   totalNewReviews: z.number().int().nonnegative(),
   sentimentCounts: z.object({
     positive: z.number().int().nonnegative(),
@@ -125,7 +133,9 @@ export const DailyStatsSchema = z.object({
  */
 export const CollectionCycleResultSchema = z.object({
   runId: z.string().uuid(),
-  appId: z.string().min(1),
+  appId: z.string().regex(/^uniclass(-[a-z0-9]+)?$/, {
+    message: "Hệ thống chỉ theo dõi ứng dụng UniClass",
+  }),
   status: z.enum(["SUCCESS", "PARTIAL", "UNAVAILABLE"]),
   startedAt: z.string().datetime(),
   completedAt: z.string().datetime(),

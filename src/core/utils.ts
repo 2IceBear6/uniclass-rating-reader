@@ -30,3 +30,25 @@ export function normalizeDateToIso(dateStr: string): string {
   return new Date().toISOString();
 }
 
+
+/**
+ * Kiểm tra xem một mã định danh ứng dụng có thuộc phạm vi UniClass hay không
+ * @param appId Mã định danh ứng dụng
+ * @returns true nếu thuộc hệ sinh thái UniClass
+ */
+export function isUniClassApp(appId: string): boolean {
+  if (!appId || typeof appId !== "string") return false;
+  return appId === "uniclass" || /^uniclass(-[a-z0-9]+)?$/.test(appId);
+}
+
+/**
+ * Ràng buộc bắt buộc: ném ngoại lệ nếu mã ứng dụng nằm ngoài phạm vi UniClass
+ * @param appId Mã định danh ứng dụng
+ */
+export function assertUniClassApp(appId: string): void {
+  if (!isUniClassApp(appId)) {
+    throw new Error(
+      `Ứng dụng "${appId}" không hợp lệ. Hệ thống được thiết kế độc quyền cho UniClass, nghiêm cấm thu thập ứng dụng ngoài`
+    );
+  }
+}

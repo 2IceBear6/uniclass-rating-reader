@@ -1,7 +1,7 @@
 import { request } from "undici";
 import type { RatingSnapshot, Review, CollectionStatus } from "../../core/types.js";
 import { classifySentiment } from "../../core/sentiment.js";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 
 /**
  * Interface kết quả thử nghiệm POC cho Google Play Store
@@ -143,9 +143,15 @@ export function parseGooglePlayReviews(html: string, country: string = "vn"): Re
       content = textMatch ? textMatch[1].trim() : "Đánh giá từ người dùng Google Play";
     }
 
-    // Tìm external ID nếu có: id="UUID::2"
-    const idMatch = block.match(/id="([a-f0-9-]+)::\d+"/);
-    const rawId = idMatch ? idMatch[1] : randomUUID();
+    // External Review ID (ưu tiên ID từ DOM, nếu không có thì băm SHA-256 từ tác giả + ngày + nội dung để đảm bảo tính tất định)
+    const idMatch = block.match(/id="([a-f0-9-]{16,})::\d+"/) || block.match(/id="([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/);
+    let rawId: string;
+    if (idMatch && idMatch[1]) {
+      rawId = idMatch[1];
+    } else {
+      const hash = createHash("sha256").update(`${author}:${createdAt}:${content}`).digest("hex");
+      rawId = `${hash.slice(0, 8)}-${hash.slice(8, 12)}-${hash.slice(12, 16)}-${hash.slice(16, 20)}-${hash.slice(20, 32)}`;
+    }
 
     reviews.push({
       id: `android:${rawId}`,

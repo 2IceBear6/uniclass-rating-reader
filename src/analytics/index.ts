@@ -115,11 +115,10 @@ export class AnalyticsEngine {
     // 1. Lấy tất cả reviews đã lưu của ứng dụng
     const allReviews = await this.storage.getReviews(appId);
 
-    // 2. Lọc các review thuộc ngày này (theo ngày thu thập collectedAt hoặc ngày tạo createdAt)
+    // 2. Lọc các review thuộc ngày này theo ngày người dùng đăng bài (createdAt)
     const dayReviews = allReviews.filter((r) => {
-      const collectedDay = r.collectedAt ? r.collectedAt.slice(0, 10) : "";
-      const createdDay = r.createdAt ? r.createdAt.slice(0, 10) : "";
-      return collectedDay === date || createdDay === date;
+      const reviewDay = (r.createdAt || "").slice(0, 10);
+      return reviewDay === date;
     });
 
     // 3. Lấy lịch sử snapshots để tìm snapshot mới nhất tính đến ngày này
@@ -172,6 +171,15 @@ export class AnalyticsEngine {
     }
 
     return null;
+  }
+
+  /**
+   * Lấy danh sách tất cả các báo cáo ngày đã được lưu trong kho lưu trữ
+   * @param appId Mã ứng dụng ("uniclass")
+   * @returns Danh sách DailyStats sắp xếp từ ngày mới nhất đến cũ nhất
+   */
+  async listAllDailyStats(appId: string): Promise<DailyStats[]> {
+    return this.storage.listDailyStats(appId);
   }
 
   /**

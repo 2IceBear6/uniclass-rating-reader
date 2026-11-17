@@ -192,14 +192,29 @@ describe("Collector & Scheduler (Milestone 5)", () => {
 
     it("ngăn chặn chạy đồng thời hai phiên thu thập cho cùng một ứng dụng", async () => {
       const mockGpProvider = new GooglePlayProvider();
-      // Giả lập hàm crawl tốn thời gian 100ms
       vi.spyOn(mockGpProvider, "fetchRatingSnapshot").mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve({ status: "UNAVAILABLE", timestamp: "" }), 100))
+        () => new Promise((resolve) => setTimeout(() => resolve({ status: "SUCCESS", timestamp: new Date().toISOString() }), 100))
       );
+      vi.spyOn(mockGpProvider, "fetchReviews").mockResolvedValue({
+        status: "SUCCESS",
+        data: [],
+        timestamp: new Date().toISOString(),
+      });
+
+      const mockAsProvider = new AppStoreProvider();
+      vi.spyOn(mockAsProvider, "fetchRatingSnapshot").mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve({ status: "SUCCESS", timestamp: new Date().toISOString() }), 100))
+      );
+      vi.spyOn(mockAsProvider, "fetchReviews").mockResolvedValue({
+        status: "SUCCESS",
+        data: [],
+        timestamp: new Date().toISOString(),
+      });
 
       const collector = new CollectorService({
         storage,
         googlePlayProvider: mockGpProvider,
+        appStoreProvider: mockAsProvider,
       });
 
       const promise1 = collector.collectApp("uniclass");

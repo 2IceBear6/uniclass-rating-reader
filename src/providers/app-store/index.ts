@@ -141,78 +141,92 @@ export class AppStoreProvider implements IStoreProvider {
       };
     }
 
-    const url = `https://itunes.apple.com/${country}/rss/customerreviews/page=1/id=${appStoreId}/sortby=mostrecent/json`;
+    const maxLimit = options?.maxCount ?? 100;
+    const validatedReviews: Review[] = [];
+    const maxPages = Math.min(Math.ceil(maxLimit / 50), 10);
 
     try {
-      const res = await request(url, {
-        headers: {
-          "User-Agent": "UniClassRatingReader/1.0",
-          "Accept": "application/json",
-        },
-      });
-
-      if (res.statusCode !== 200) {
-        return {
-          status: "UNAVAILABLE",
-          data: [],
-          error: `Apple Customer Reviews RSS trả về HTTP status ${res.statusCode}`,
-          timestamp: new Date().toISOString(),
-        };
-      }
-
-      const payload = (await res.body.json()) as {
-        feed?: {
-          entry?: Array<{
-            id?: { label?: string };
-            title?: { label?: string };
-            content?: { label?: string };
-            "im:rating"?: { label?: string };
-            author?: { name?: { label?: string } };
-            updated?: { label?: string };
-          }>;
-        };
-      };
-
-      const rawEntries = payload.feed?.entry || [];
-      const validatedReviews: Review[] = [];
-
-      // Bỏ qua mục đầu tiên nếu là thông tin mô tả ứng dụng thay vì đánh giá thực tế
-      const reviewEntries =
-        rawEntries.length > 0 && rawEntries[0]["im:rating"] ? rawEntries : rawEntries.slice(1);
-
-      const maxLimit = options?.maxCount ?? 50;
-
-      for (const item of reviewEntries) {
+      for (let page = 1; page <= maxPages; page++) {
         if (validatedReviews.length >= maxLimit) break;
 
-        const rawId = item.id?.label || randomUUID();
-        const rating = item["im:rating"]?.label ? parseInt(item["im:rating"].label, 10) : 5;
-        const title = item.title?.label || null;
-        const content = item.content?.label || "";
-        const author = item.author?.name?.label || null;
-        const rawDate = item.updated?.label || new Date().toISOString();
-        const createdAt = normalizeDateToIso(rawDate);
+        const url = `https://itunes.apple.com/${country}/rss/customerreviews/page=${page}/id=${appStoreId}/sortby=mostrecent/json`;
+        const res = await request(url, {
+          headers: {
+            "User-Agent": "UniClassRatingReader/1.0",
+            "Accept": "application/json",
+          },
+        });
 
-        const rawReview = {
-          id: `ios:${rawId}`,
-          externalReviewId: rawId,
-          appId: config.id,
-          platform: "ios" as const,
-          rating,
-          title,
-          content,
-          author,
-          createdAt,
-          country,
-          sentiment: classifySentiment(rating),
-          collectedAt: new Date().toISOString(),
+        if (res.statusCode !== 200) {
+          if (page === 1) {
+            return {
+              status: "UNAVAILABLE",
+              data: [],
+              error: `Apple Customer Reviews RSS trả về HTTP status ${res.statusCode}`,
+              timestamp: new Date().toISOString(),
+            };
+          }
+          break;
+        }
+
+        const payload = (await res.body.json()) as {
+          feed?: {
+            entry?: Array<{
+              id?: { label?: string };
+              title?: { label?: string };
+              content?: { label?: string };
+              "im:rating"?: { label?: string };
+              author?: { name?: { label?: string } };
+              updated?: { label?: string };
+            }>;
+          };
         };
 
-        try {
-          const parsedReview = ReviewSchema.parse(rawReview);
-          validatedReviews.push(parsedReview);
-        } catch {
-          // Bỏ qua bài review không hợp lệ để đảm bảo an toàn dữ liệu
+        const rawEntries = payload.feed?.entry || [];
+        if (rawEntries.length === 0) {
+          break;
+        }
+
+        // Bỏ qua mục đầu tiên nếu là thông tin mô tả ứng dụng thay vì đánh giá thực tế
+        const reviewEntries =
+          rawEntries.length > 0 && rawEntries[0]["im:rating"] ? rawEntries : rawEntries.slice(1);
+
+        if (reviewEntries.length === 0) {
+          break;
+        }
+
+        for (const item of reviewEntries) {
+          if (validatedReviews.length >= maxLimit) break;
+
+          const rawId = item.id?.label || randomUUID();
+          const rating = item["im:rating"]?.label ? parseInt(item["im:rating"].label, 10) : 5;
+          const title = item.title?.label || null;
+          const content = item.content?.label || "";
+          const author = item.author?.name?.label || null;
+          const rawDate = item.updated?.label || new Date().toISOString();
+          const createdAt = normalizeDateToIso(rawDate);
+
+          const rawReview = {
+            id: `ios:${rawId}`,
+            externalReviewId: rawId,
+            appId: config.id,
+            platform: "ios" as const,
+            rating,
+            title,
+            content,
+            author,
+            createdAt,
+            country,
+            sentiment: classifySentiment(rating),
+            collectedAt: new Date().toISOString(),
+          };
+
+          try {
+            const parsedReview = ReviewSchema.parse(rawReview);
+            validatedReviews.push(parsedReview);
+          } catch {
+            // Bỏ qua bài review không hợp lệ để đảm bảo an toàn dữ liệu
+          }
         }
       }
 
@@ -224,8 +238,8 @@ export class AppStoreProvider implements IStoreProvider {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       return {
-        status: "UNAVAILABLE",
-        data: [],
+        status: validatedReviews.length > 0 ? "PARTIAL" : "UNAVAILABLE",
+        data: validatedReviews,
         error: `Lỗi kết nối Apple Customer Reviews RSS: ${message}`,
         timestamp: new Date().toISOString(),
       };

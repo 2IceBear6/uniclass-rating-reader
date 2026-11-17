@@ -1,5 +1,6 @@
 import { request } from "undici";
-import { randomUUID } from "node:crypto";
+import { chromium } from "playwright";
+import { randomUUID, createHash } from "node:crypto";
 import type {
   IStoreProvider,
   AppConfig,
@@ -14,6 +15,7 @@ import { normalizeDateToIso } from "../../core/utils.js";
 
 /**
  * Lớp cung cấp dữ liệu đánh giá và nhận xét từ Google Play Store cho ứng dụng UniClass
+ * Sử dụng Playwright Headless Browser làm bộ máy cào dữ liệu chính để thu thập toàn bộ review qua modal dialog
  */
 export class GooglePlayProvider implements IStoreProvider {
   public readonly platform: SupportedPlatform = "android";
@@ -28,6 +30,7 @@ export class GooglePlayProvider implements IStoreProvider {
    * @param html Mã nguồn HTML trang Google Play
    * @param appId Mã ứng dụng nội bộ
    * @param country Mã quốc gia
+   * @returns RatingSnapshot hoặc null nếu không bóc tách được
    */
   private extractRatingSnapshotFromHtml(
     html: string,
@@ -117,11 +120,12 @@ export class GooglePlayProvider implements IStoreProvider {
   }
 
   /**
-   * Bóc tách danh sách nhận xét người dùng từ mã nguồn HTML Google Play
+   * Bóc tách danh sách nhận xét người dùng từ mã nguồn HTML tĩnh Google Play (phương thức fallback)
    * @param html Mã nguồn HTML trang Google Play
    * @param appId Mã ứng dụng nội bộ
    * @param country Mã quốc gia
    * @param maxLimit Giới hạn số lượng tối đa
+   * @returns Danh sách Review chuẩn hóa
    */
   private extractReviewsFromHtml(
     html: string,
@@ -161,9 +165,17 @@ export class GooglePlayProvider implements IStoreProvider {
         content = textMatch ? textMatch[1].trim() : "Đánh giá từ người dùng Google Play";
       }
 
-      // External Review ID
-      const idMatch = block.match(/id="([a-f0-9-]+)::\d+"/);
-      const rawId = idMatch ? idMatch[1] : randomUUID();
+      // External Review ID (ưu tiên ID từ DOM, nếu không có thì băm SHA-256 từ tác giả + ngày + nội dung để đảm bảo tính tất định)
+      const idMatch =
+        block.match(/id="([a-f0-9-]{16,})::\d+"/) ||
+        block.match(/id="([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/);
+      let rawId: string;
+      if (idMatch && idMatch[1]) {
+        rawId = idMatch[1];
+      } else {
+        const hash = createHash("sha256").update(`${author}:${createdAt}:${content}`).digest("hex");
+        rawId = `${hash.slice(0, 8)}-${hash.slice(8, 12)}-${hash.slice(12, 16)}-${hash.slice(16, 20)}-${hash.slice(20, 32)}`;
+      }
 
       const rawReview = {
         id: `android:${rawId}`,
@@ -192,7 +204,136 @@ export class GooglePlayProvider implements IStoreProvider {
   }
 
   /**
-   * Thu thập ảnh chụp điểm đánh giá và tổng số rating trên Google Play Store
+   * Thu thập danh sách nhận xét bằng Playwright Headless Browser thông qua modal "Xem tất cả bài đánh giá"
+   * @param config Cấu hình ứng dụng UniClass
+   * @param maxLimit Số lượng nhận xét tối đa cần lấy
+   * @param country Mã quốc gia
+   * @returns Danh sách Review đã được chuẩn hóa và xác thực
+   */
+  private async fetchReviewsWithPlaywright(
+    config: AppConfig,
+    maxLimit: number,
+    country: string
+  ): Promise<Review[]> {
+    const { packageId } = config.platforms!.android!;
+    const url = `https://play.google.com/store/apps/details?id=${packageId}&hl=vi&gl=${country}`;
+
+    const browser = await chromium.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+    });
+
+    try {
+      const context = await browser.newContext({
+        userAgent:
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        locale: "vi-VN",
+      });
+
+      const page = await context.newPage();
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+
+      // Tìm nút "Xem tất cả bài đánh giá"
+      const seeAllBtn = page.getByRole("button", { name: "Xem tất cả bài đánh giá" }).or(
+        page.locator('button:has-text("Xem tất cả bài đánh giá")')
+      );
+
+      const btnCount = await seeAllBtn.count();
+      if (btnCount === 0) {
+        throw new Error("Không tìm thấy nút 'Xem tất cả bài đánh giá' trên giao diện Google Play");
+      }
+
+      await seeAllBtn.first().click();
+      await page.waitForTimeout(1500);
+
+      const dialog = page.locator('div[role="dialog"]');
+      const isVisible = await dialog.isVisible().catch(() => false);
+      if (!isVisible) {
+        throw new Error("Không mở được hộp thoại 'Xem tất cả bài đánh giá'");
+      }
+
+      // Cuộn để tải thêm bài đánh giá cho đến khi đạt giới hạn maxLimit hoặc không còn dữ liệu mới
+      let prevCount = 0;
+      let scrollAttempts = 0;
+      const maxScrolls = Math.min(Math.ceil(maxLimit / 15) + 3, 25);
+
+      while (scrollAttempts < maxScrolls) {
+        const cards = dialog.locator(".RHo1pe");
+        const currentCount = await cards.count();
+        if (currentCount >= maxLimit) {
+          break;
+        }
+
+        if (currentCount === prevCount && scrollAttempts > 2) {
+          break;
+        }
+
+        prevCount = currentCount;
+        scrollAttempts++;
+
+        await cards.last().scrollIntoViewIfNeeded().catch(() => {});
+        await page.waitForTimeout(1000);
+      }
+
+      // Bóc tách dữ liệu từ các thẻ review bên trong modal dialog
+      const rawCards = await dialog.locator(".RHo1pe").evaluateAll((cards, limit) => {
+        return cards.slice(0, limit).map((el) => {
+          const rawId = el.querySelector("[data-review-id]")?.getAttribute("data-review-id") || "";
+          const author = el.querySelector(".X5PpBb")?.textContent?.trim() || "Người dùng Google Play";
+          const ratingAria =
+            el.querySelector('[role="img"]')?.getAttribute("aria-label") ||
+            el.querySelector('[aria-label*="sao"]')?.getAttribute("aria-label") ||
+            "";
+          const ratingMatch = ratingAria.match(/([0-9])\s*sao/);
+          const rating = ratingMatch ? parseInt(ratingMatch[1], 10) : 5;
+          const dateStr = el.querySelector(".bp9Aid")?.textContent?.trim() || "";
+          const content =
+            el.querySelector(".h3YV2d")?.textContent?.trim() || "Đánh giá không có nội dung chữ";
+          return { rawId, author, rating, dateStr, content };
+        });
+      }, maxLimit);
+
+      const reviews: Review[] = [];
+      for (const item of rawCards) {
+        const createdAt = normalizeDateToIso(item.dateStr);
+        let externalReviewId = item.rawId;
+        if (!externalReviewId) {
+          const hash = createHash("sha256")
+            .update(`${item.author}:${createdAt}:${item.content}`)
+            .digest("hex");
+          externalReviewId = `${hash.slice(0, 8)}-${hash.slice(8, 12)}-${hash.slice(12, 16)}-${hash.slice(16, 20)}-${hash.slice(20, 32)}`;
+        }
+
+        const rawReview = {
+          id: `android:${externalReviewId}`,
+          externalReviewId,
+          appId: config.id,
+          platform: "android" as const,
+          rating: item.rating,
+          title: null,
+          content: item.content,
+          author: item.author,
+          createdAt,
+          country,
+          sentiment: classifySentiment(item.rating),
+          collectedAt: new Date().toISOString(),
+        };
+
+        try {
+          reviews.push(ReviewSchema.parse(rawReview));
+        } catch {
+          // Bỏ qua bài review không hợp lệ
+        }
+      }
+
+      return reviews;
+    } finally {
+      await browser.close().catch(() => {});
+    }
+  }
+
+  /**
+   * Thu thập ảnh chụp điểm đánh giá và tổng số rating trên Google Play Store sử dụng Playwright Headless
    * @param config Cấu hình ứng dụng UniClass
    * @returns Kết quả ProviderResult chứa RatingSnapshot đã chuẩn hóa
    */
@@ -217,6 +358,40 @@ export class GooglePlayProvider implements IStoreProvider {
 
     const url = `https://play.google.com/store/apps/details?id=${packageId}&hl=vi&gl=${country}`;
 
+    // 1. Thu thập bằng Playwright Headless Browser
+    try {
+      const browser = await chromium.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+      });
+
+      try {
+        const context = await browser.newContext({
+          userAgent:
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          locale: "vi-VN",
+        });
+
+        const page = await context.newPage();
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+        const html = await page.content();
+        const snapshot = this.extractRatingSnapshotFromHtml(html, config.id, country);
+
+        if (snapshot) {
+          return {
+            status: "SUCCESS",
+            data: snapshot,
+            timestamp: new Date().toISOString(),
+          };
+        }
+      } finally {
+        await browser.close().catch(() => {});
+      }
+    } catch {
+      // Chuyển sang HTTP fallback bên dưới
+    }
+
+    // 2. Fallback qua HTTP parsing nếu Playwright gặp vấn đề kết nối
     try {
       const res = await request(url, {
         headers: {
@@ -261,7 +436,7 @@ export class GooglePlayProvider implements IStoreProvider {
   }
 
   /**
-   * Thu thập danh sách nhận xét mới nhất trên Google Play Store
+   * Thu thập danh sách nhận xét mới nhất trên Google Play Store bằng Playwright Headless Browser
    * @param config Cấu hình ứng dụng UniClass
    * @param options Tùy chọn thu thập (số lượng tối đa)
    * @returns Kết quả ProviderResult chứa mảng Review đã chuẩn hóa
@@ -290,10 +465,27 @@ export class GooglePlayProvider implements IStoreProvider {
       };
     }
 
-    const maxLimit = options?.maxCount ?? 50;
-    const url = `https://play.google.com/store/apps/details?id=${packageId}&hl=vi&gl=${country}`;
+    const maxLimit = options?.maxCount ?? 100;
 
+    // 1. Thu thập bằng Playwright Headless Browser (Primary Engine)
     try {
+      const playwrightReviews = await this.fetchReviewsWithPlaywright(config, maxLimit, country);
+      if (playwrightReviews.length > 0) {
+        return {
+          status: "SUCCESS",
+          data: playwrightReviews,
+          timestamp: new Date().toISOString(),
+        };
+      }
+    } catch (playwrightErr) {
+      console.warn(
+        `[GooglePlayProvider] Playwright scraper gặp sự cố (${playwrightErr instanceof Error ? playwrightErr.message : String(playwrightErr)}). Đang chuyển sang HTTP fallback...`
+      );
+    }
+
+    // 2. Fallback qua HTTP Parsing bằng undici nếu Playwright gặp sự cố
+    try {
+      const url = `https://play.google.com/store/apps/details?id=${packageId}&hl=vi&gl=${country}`;
       const res = await request(url, {
         headers: {
           "User-Agent":

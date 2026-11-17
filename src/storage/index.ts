@@ -1,6 +1,8 @@
+import * as fs from "node:fs";
 import * as path from "node:path";
 import type { AppConfig, RatingSnapshot, Review, DailyStats } from "../core/types.js";
 import { AppConfigSchema, DailyStatsSchema } from "../core/schemas.js";
+import { assertUniClassApp } from "../core/utils.js";
 import { FileLockManager } from "./lock.js";
 import { atomicWriteJson, readJsonSafe } from "./atomic.js";
 import { safeAppendJsonl, readJsonlFaultTolerant } from "./jsonl.js";
@@ -38,6 +40,7 @@ export interface IStorageEngine {
     }
   ): Promise<Review[]>;
   getDailyStats(appId: string, date: string): Promise<DailyStats | null>;
+  listDailyStats(appId: string): Promise<DailyStats[]>;
   saveDailyStats(stats: DailyStats): Promise<void>;
   appendCollectionLog(logRecord: Record<string, unknown>): Promise<void>;
   createBackup(appId: string): Promise<string>;
@@ -59,10 +62,11 @@ export class LocalStorageEngine implements IStorageEngine {
   }
 
   /**
-   * Lấy đường dẫn thư mục của một ứng dụng cụ thể
+   * Lấy đường dẫn thư mục của một ứng dụng cụ thể (chỉ cho phép UniClass)
    * @param appId Mã ứng dụng ("uniclass")
    */
   private getAppDir(appId: string): string {
+    assertUniClassApp(appId);
     return path.join(this.baseDir, "apps", appId);
   }
 
@@ -175,9 +179,9 @@ export class LocalStorageEngine implements IStorageEngine {
   }
 
   /**
-   * Đọc danh sách nhận xét đã lưu từ reviews.jsonl có hỗ trợ phân trang và bộ lọc
+   * Đọc danh sách nhận xét đã lưu từ reviews.jsonl có hỗ trợ phân trang và bộ lọc theo ngày, platform, sentiment
    * @param appId Mã ứng dụng
-   * @param options Tùy chọn lọc theo platform, sentiment và phân trang
+   * @param options Tùy chọn lọc theo platform, sentiment, ngày đăng (date, startDate, endDate) và phân trang
    */
   async getReviews(
     appId: string,
@@ -186,6 +190,9 @@ export class LocalStorageEngine implements IStorageEngine {
       offset?: number;
       platform?: "android" | "ios";
       sentiment?: "positive" | "neutral" | "negative";
+      date?: string;
+      startDate?: string;
+      endDate?: string;
     }
   ): Promise<Review[]> {
     const reviewsPath = path.join(this.getAppDir(appId), "reviews.jsonl");
@@ -198,6 +205,24 @@ export class LocalStorageEngine implements IStorageEngine {
     }
     if (options?.sentiment) {
       filtered = filtered.filter((r) => r.sentiment === options.sentiment);
+    }
+    if (options?.date) {
+      filtered = filtered.filter((r) => {
+        const d = r.createdAt ? r.createdAt.slice(0, 10) : "";
+        return d === options.date;
+      });
+    }
+    if (options?.startDate) {
+      filtered = filtered.filter((r) => {
+        const d = r.createdAt ? r.createdAt.slice(0, 10) : "";
+        return d >= options.startDate!;
+      });
+    }
+    if (options?.endDate) {
+      filtered = filtered.filter((r) => {
+        const d = r.createdAt ? r.createdAt.slice(0, 10) : "";
+        return d <= options.endDate!;
+      });
     }
 
     const offset = options?.offset ?? 0;
@@ -216,6 +241,38 @@ export class LocalStorageEngine implements IStorageEngine {
     const data = await readJsonSafe<DailyStats>(statsPath);
     if (!data) return null;
     return DailyStatsSchema.parse(data);
+  }
+
+  /**
+   * Đọc danh sách tất cả các file thống kê ngày đã lưu trong thư mục daily-stats
+   * @param appId Mã định danh ứng dụng ("uniclass")
+   * @returns Danh sách các đối tượng DailyStats sắp xếp từ ngày mới nhất
+   */
+  async listDailyStats(appId: string): Promise<DailyStats[]> {
+    const dir = path.join(this.getAppDir(appId), "daily-stats");
+    try {
+      const files = await fs.promises.readdir(dir);
+      const jsonFiles = files
+        .filter((f) => f.endsWith(".json") && !f.startsWith("."))
+        .sort()
+        .reverse();
+
+      const list: DailyStats[] = [];
+      for (const file of jsonFiles) {
+        const filePath = path.join(dir, file);
+        const data = await readJsonSafe<DailyStats>(filePath);
+        if (data) {
+          try {
+            list.push(DailyStatsSchema.parse(data));
+          } catch {
+            // Bỏ qua file lỗi định dạng
+          }
+        }
+      }
+      return list;
+    } catch {
+      return [];
+    }
   }
 
   /**
