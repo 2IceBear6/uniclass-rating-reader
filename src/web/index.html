@@ -1585,8 +1585,18 @@
         const targetIndex = targetItem.index;
 
         const items = [];
+        // Ưu tiên đưa targetItem lên đầu mảng để sự kiện onClick luôn nhận diện chính xác dataset được nhấp gần nhất
+        const targetMeta = chart.getDatasetMeta(targetItem.datasetIndex);
+        if (targetMeta && targetMeta.data && targetMeta.data[targetIndex]) {
+          items.push({
+            element: targetMeta.data[targetIndex],
+            datasetIndex: targetItem.datasetIndex,
+            index: targetIndex
+          });
+        }
+
         chart.data.datasets.forEach((dataset, datasetIndex) => {
-          if (dataset.stack === targetStack) {
+          if (datasetIndex !== targetItem.datasetIndex && dataset.stack === targetStack) {
             const meta = chart.getDatasetMeta(datasetIndex);
             if (meta && meta.data && meta.data[targetIndex]) {
               items.push({
@@ -1832,22 +1842,48 @@
             mode: 'activeStack',
             intersect: false,
           },
+          onHover: (event, chartElement) => {
+            const target = event?.native?.target;
+            if (target && target.style) {
+              target.style.cursor = chartElement && chartElement.length > 0 ? 'pointer' : 'default';
+            }
+          },
           onClick: (event, elements, chart) => {
-            if (elements && elements.length > 0) {
-              const el = elements[0];
-              const idx = el.index;
-              const clickedDate = labels[idx];
-              const clickedStack = chart.data.datasets[el.datasetIndex]?.stack;
-
-              if (clickedDate) {
-                if (clickedStack === 'android') {
-                  state.filters.platform = 'android';
-                } else if (clickedStack === 'ios') {
-                  state.filters.platform = 'ios';
-                }
-                filterBySpecificDate(clickedDate);
+            let targetEl = elements && elements.length > 0 ? elements[0] : null;
+            if (!targetEl && chart) {
+              const nearest = chart.getElementsAtEventForMode(event, 'nearest', { intersect: false, axis: 'x' }, false);
+              if (nearest && nearest.length > 0) {
+                targetEl = nearest[0];
               }
             }
+            if (!targetEl) return;
+
+            const idx = targetEl.index;
+            const clickedDate = labels[idx];
+            if (!clickedDate) return;
+
+            const dataset = chart.data.datasets[targetEl.datasetIndex];
+            const clickedStack = dataset?.stack;
+            const datasetLabel = dataset?.label || "";
+
+            let targetPlatform = 'all';
+
+            // Phân loại nền tảng mục tiêu theo cột hoặc scope đang được kích hoạt
+            if (scope === 'android') {
+              targetPlatform = 'android';
+            } else if (scope === 'ios') {
+              targetPlatform = 'ios';
+            } else if (clickedStack === 'android') {
+              targetPlatform = 'android';
+            } else if (clickedStack === 'ios') {
+              targetPlatform = 'ios';
+            } else if (datasetLabel.includes('Android')) {
+              targetPlatform = 'android';
+            } else if (datasetLabel.includes('App Store') || datasetLabel.includes('iOS')) {
+              targetPlatform = 'ios';
+            }
+
+            filterBySpecificDate(clickedDate, targetPlatform);
           },
           scales: {
             x: {
@@ -2042,11 +2078,18 @@
       applyFiltersAndRender();
     }
 
+    /**
+     * Xóa nội dung tìm kiếm ô input và lọc lại dữ liệu
+     */
     function clearSearch() {
       document.getElementById("search-query").value = "";
       handleFilterChange();
     }
 
+    /**
+     * Lọc danh sách nhận xét theo nền tảng ('all' | 'android' | 'ios')
+     * @param {string} p Nền tảng cần lọc
+     */
     function setPlatformFilter(p) {
       state.filters.platform = p;
       document.querySelectorAll(".flt-plat").forEach(btn => {
@@ -2059,9 +2102,14 @@
         activeBtn.classList.add("bg-charcoal-800", "text-brand-cyan", "border-charcoal-700");
       }
       state.currentPage = 1;
+      renderActiveDateFilterBadge();
       applyFiltersAndRender();
     }
 
+    /**
+     * Lọc danh sách nhận xét theo cảm xúc ('all' | 'positive' | 'neutral' | 'negative')
+     * @param {string} s Cảm xúc cần lọc
+     */
     function setSentimentFilter(s) {
       state.filters.sentiment = s;
       document.querySelectorAll(".flt-sent").forEach(btn => {
@@ -2078,7 +2126,7 @@
     }
 
     /**
-     * Hiển thị huy hiệu ngày đang được lọc
+     * Hiển thị huy hiệu ngày và nền tảng đang được lọc trong Explorer
      */
     function renderActiveDateFilterBadge() {
       const container = document.getElementById("active-filter-badge-container");
@@ -2090,11 +2138,22 @@
       }
 
       const date = state.filters.specificDate;
+      const plat = state.filters.platform;
+      let platBadge = "";
+      if (plat === 'android') {
+        platBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-sans font-medium">🤖 Google Play (Android)</span>`;
+      } else if (plat === 'ios') {
+        platBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30 text-[11px] font-sans font-medium">🍎 Apple App Store (iOS)</span>`;
+      } else {
+        platBadge = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-500/15 text-slate-300 border border-slate-500/30 text-[11px] font-sans font-medium">Tất cả nền tảng</span>`;
+      }
+
       container.innerHTML = `
         <div class="flex items-center justify-between px-3.5 py-2 bg-sky-950/40 border border-sky-500/30 rounded-xl text-xs font-mono mb-2">
-          <div class="flex items-center gap-2 text-sky-300">
+          <div class="flex items-center flex-wrap gap-2 text-sky-300">
             <span>📅</span>
             <span>Đang lọc theo ngày: <strong class="text-white">${date}</strong></span>
+            ${platBadge}
           </div>
           <button onclick="clearSpecificDateFilter()" class="flex items-center gap-1 px-2.5 py-1 rounded bg-charcoal-800 hover:bg-charcoal-750 text-slate-300 hover:text-white border border-charcoal-700 transition-colors text-[11px]">
             ✕ Bỏ lọc ngày
@@ -2453,15 +2512,16 @@
     }
 
     /**
-     * Lọc danh sách nhận xét theo một ngày cụ thể (từ tab Thống Kê Ngày)
-     * @param date Ngày dạng YYYY-MM-DD
+     * Lọc danh sách nhận xét theo một ngày cụ thể và nền tảng (nếu có)
+     * @param {string} date Ngày dạng YYYY-MM-DD
+     * @param {string} [targetPlatform='all'] Nền tảng muốn lọc ('all' | 'android' | 'ios')
      */
-    function filterBySpecificDate(date) {
+    function filterBySpecificDate(date, targetPlatform = 'all') {
       switchTab('explorer');
 
       // Đặt lại các bộ lọc khác
       state.filters.query = "";
-      state.filters.platform = "all";
+      state.filters.platform = targetPlatform;
       state.filters.sentiment = "all";
       state.filters.stars = "all";
       state.filters.year = "all";
@@ -2469,26 +2529,31 @@
       state.filters.specificDate = date;
       state.currentPage = 1;
 
-      // Đồng bộ UI
+      // Đồng bộ UI ô tìm kiếm và select
       const searchInput = document.getElementById("search-query");
       if (searchInput) searchInput.value = "";
       const clearBtn = document.getElementById("btn-clear-search");
       if (clearBtn) clearBtn.classList.add("hidden");
 
-      document.getElementById("flt-stars").value = "all";
-      document.getElementById("flt-year").value = "all";
-      document.getElementById("sort-order").value = "newest";
+      const starsEl = document.getElementById("flt-stars");
+      if (starsEl) starsEl.value = "all";
+      const yearEl = document.getElementById("flt-year");
+      if (yearEl) yearEl.value = "all";
+      const sortEl = document.getElementById("sort-order");
+      if (sortEl) sortEl.value = "newest";
 
+      // Cập nhật trạng thái nút nền tảng
       document.querySelectorAll(".flt-plat").forEach(btn => {
         btn.classList.remove("bg-charcoal-800", "text-brand-cyan", "border-charcoal-700");
         btn.classList.add("bg-charcoal-850", "text-slate-400", "border-charcoal-800");
       });
-      const platAll = document.getElementById("flt-plat-all");
-      if (platAll) {
-        platAll.classList.remove("bg-charcoal-850", "text-slate-400", "border-charcoal-800");
-        platAll.classList.add("bg-charcoal-800", "text-brand-cyan", "border-charcoal-700");
+      const activePlatBtn = document.getElementById(`flt-plat-${targetPlatform}`);
+      if (activePlatBtn) {
+        activePlatBtn.classList.remove("bg-charcoal-850", "text-slate-400", "border-charcoal-800");
+        activePlatBtn.classList.add("bg-charcoal-800", "text-brand-cyan", "border-charcoal-700");
       }
 
+      // Cập nhật trạng thái nút cảm xúc về 'all'
       document.querySelectorAll(".flt-sent").forEach(btn => {
         btn.classList.remove("bg-charcoal-800", "text-brand-cyan", "border-charcoal-700");
         btn.classList.add("bg-charcoal-850", "border-charcoal-800");
@@ -2501,7 +2566,9 @@
 
       renderActiveDateFilterBadge();
       applyFiltersAndRender();
-      showToast(`Đang hiển thị ${state.filteredReviews.length} nhận xét của ngày ${date}`, "info");
+
+      const platLabel = targetPlatform === 'android' ? ' • Google Play (Android)' : targetPlatform === 'ios' ? ' • Apple App Store (iOS)' : '';
+      showToast(`Đang hiển thị ${state.filteredReviews.length} nhận xét của ngày ${date}${platLabel}`, "info");
     }
 
     /**

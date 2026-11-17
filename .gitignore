@@ -10,6 +10,7 @@ data/
 dist/
 build/
 coverage/
+scratch/
 
 # Environment files
 .env
