@@ -74,6 +74,9 @@ describe("Fastify REST API (Milestone 7)", () => {
     expect(res.headers["content-type"]).toContain("text/html");
     expect(res.payload).toContain("UniClass Rating Reader");
     expect(res.payload).toContain("tab-overview");
+    expect(res.payload).toContain("overview-btn-all");
+    expect(res.payload).toContain("overview-btn-android");
+    expect(res.payload).toContain("overview-btn-ios");
   });
 
   it("GET /dashboard điều hướng về / với mã 302", async () => {
@@ -259,6 +262,12 @@ describe("Fastify REST API (Milestone 7)", () => {
     const body = JSON.parse(res.payload);
     expect(body.appId).toBe("uniclass");
     expect(body.totalReviews).toBeDefined();
+    expect(body.overallSentiment).toBeDefined();
+    expect(body.overallRatingBreakdown).toBeDefined();
+    expect(body.platforms.android?.sentiment).toBeDefined();
+    expect(body.platforms.android?.ratingBreakdown).toBeDefined();
+    expect(body.platforms.ios?.sentiment).toBeDefined();
+    expect(body.platforms.ios?.ratingBreakdown).toBeDefined();
   });
 
   it("POST /api/collector/trigger kích hoạt thu thập thành công", async () => {

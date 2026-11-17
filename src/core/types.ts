@@ -207,10 +207,29 @@ export interface AppOverview {
     neutral: number;
     negative: number;
   };
+  overallRatingBreakdown?: {
+    1: number;
+    2: number;
+    3: number;
+    4: number;
+    5: number;
+  };
   platforms: {
     android?: {
       totalReviews: number;
       averageRatingReviews: number;
+      sentiment?: {
+        positive: number;
+        neutral: number;
+        negative: number;
+      };
+      ratingBreakdown?: {
+        1: number;
+        2: number;
+        3: number;
+        4: number;
+        5: number;
+      };
       latestSnapshot?: {
         averageRating: number;
         totalRatings: number;
@@ -227,10 +246,29 @@ export interface AppOverview {
     ios?: {
       totalReviews: number;
       averageRatingReviews: number;
+      sentiment?: {
+        positive: number;
+        neutral: number;
+        negative: number;
+      };
+      ratingBreakdown?: {
+        1: number;
+        2: number;
+        3: number;
+        4: number;
+        5: number;
+      };
       latestSnapshot?: {
         averageRating: number;
         totalRatings: number;
         collectedAt: string;
+        ratingBreakdown?: {
+          1?: number;
+          2?: number;
+          3?: number;
+          4?: number;
+          5?: number;
+        };
       };
     };
   };

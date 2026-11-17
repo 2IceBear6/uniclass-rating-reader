@@ -295,6 +295,14 @@ describe("Analytics Engine (Milestone 6)", () => {
     expect(overview.platforms.ios?.totalReviews).toBe(1);
     expect(overview.platforms.ios?.averageRatingReviews).toBe(3);
     expect(overview.platforms.ios?.latestSnapshot?.averageRating).toBe(4.18);
+
+    // Kiểm tra sentiment và ratingBreakdown theo từng nền tảng
+    expect(overview.platforms.android?.sentiment?.positive).toBe(1);
+    expect(overview.platforms.android?.ratingBreakdown?.[5]).toBe(1);
+    expect(overview.platforms.ios?.sentiment?.neutral).toBe(1);
+    expect(overview.platforms.ios?.ratingBreakdown?.[3]).toBe(1);
+    expect(overview.overallRatingBreakdown?.[5]).toBe(1);
+    expect(overview.overallRatingBreakdown?.[3]).toBe(1);
   });
 });
 

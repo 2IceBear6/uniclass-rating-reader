@@ -222,19 +222,32 @@ export class AnalyticsEngine {
     const allReviews = await this.storage.getReviews(appId);
     const allSnapshots = await this.storage.getRatingSnapshots(appId);
 
-    let positive = 0;
-    let neutral = 0;
-    let negative = 0;
-
     const androidReviews = allReviews.filter((r) => r.platform === "android");
     const iosReviews = allReviews.filter((r) => r.platform === "ios");
 
-    for (const r of allReviews) {
-      const sentiment = classifySentiment(r.rating);
-      if (sentiment === "positive") positive++;
-      else if (sentiment === "neutral") neutral++;
-      else negative++;
-    }
+    const calcSentiment = (revs: Review[]) => {
+      let positive = 0;
+      let neutral = 0;
+      let negative = 0;
+      for (const r of revs) {
+        const s = classifySentiment(r.rating);
+        if (s === "positive") positive++;
+        else if (s === "neutral") neutral++;
+        else negative++;
+      }
+      return { positive, neutral, negative };
+    };
+
+    const calcBreakdown = (revs: Review[]) => {
+      const breakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      for (const r of revs) {
+        if (r.rating >= 1 && r.rating <= 5) {
+          const star = r.rating as 1 | 2 | 3 | 4 | 5;
+          breakdown[star] = (breakdown[star] || 0) + 1;
+        }
+      }
+      return breakdown;
+    };
 
     const calcAvg = (revs: Review[]) => {
       if (revs.length === 0) return 0;
@@ -248,15 +261,14 @@ export class AnalyticsEngine {
     return {
       appId,
       totalReviews: allReviews.length,
-      overallSentiment: {
-        positive,
-        neutral,
-        negative,
-      },
+      overallSentiment: calcSentiment(allReviews),
+      overallRatingBreakdown: calcBreakdown(allReviews),
       platforms: {
         android: {
           totalReviews: androidReviews.length,
           averageRatingReviews: calcAvg(androidReviews),
+          sentiment: calcSentiment(androidReviews),
+          ratingBreakdown: calcBreakdown(androidReviews),
           latestSnapshot: latestAndroidSnapshot
             ? {
                 averageRating: latestAndroidSnapshot.averageRating,
@@ -269,11 +281,14 @@ export class AnalyticsEngine {
         ios: {
           totalReviews: iosReviews.length,
           averageRatingReviews: calcAvg(iosReviews),
+          sentiment: calcSentiment(iosReviews),
+          ratingBreakdown: calcBreakdown(iosReviews),
           latestSnapshot: latestIosSnapshot
             ? {
                 averageRating: latestIosSnapshot.averageRating,
                 totalRatings: latestIosSnapshot.totalRatings,
                 collectedAt: latestIosSnapshot.collectedAt,
+                ratingBreakdown: latestIosSnapshot.ratingBreakdown,
               }
             : undefined,
         },

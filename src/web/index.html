@@ -115,13 +115,6 @@
               LIVE
             </span>
           </div>
-          <div class="text-[11px] font-mono text-slate-500 flex items-center gap-2 mt-0.5">
-            <span>app: <strong class="text-slate-300">uniclass</strong></span>
-            <span>•</span>
-            <span>zero-database</span>
-            <span>•</span>
-            <span>playwright + rss</span>
-          </div>
         </div>
       </div>
 
@@ -205,24 +198,56 @@
     <!-- ============================================================ -->
     <section id="tab-overview" class="tab-content space-y-6">
 
+      <!-- PLATFORM SCOPE FILTER BAR (Chung / Android / iOS) -->
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-charcoal-900 rounded-xl p-3 panel-border">
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-mono text-slate-400">Nền tảng:</span>
+          <div class="inline-flex p-1 bg-charcoal-950 rounded-lg border border-charcoal-800 font-mono text-xs"
+            role="tablist">
+            <!-- Nút Chung -->
+            <button id="overview-btn-all" onclick="setOverviewScope('all')"
+              class="overview-scope-btn px-4 py-1.5 rounded-md font-semibold text-brand-cyan bg-charcoal-800 border border-charcoal-700 flex items-center gap-2 transition-all focus:outline-none"
+              style="border-color: #23324E;">
+              <span class="w-2 h-2 rounded-full bg-brand-cyan"></span>
+              <span>Chung</span>
+            </button>
+            <!-- Nút Android -->
+            <button id="overview-btn-android" onclick="setOverviewScope('android')"
+              class="overview-scope-btn px-4 py-1.5 rounded-md font-medium text-slate-400 hover:text-white border border-transparent flex items-center gap-2 transition-all focus:outline-none"
+              style="border-color: transparent;">
+              <span class="w-2 h-2 rounded-full bg-brand-android"></span>
+              <span>Android</span>
+            </button>
+            <!-- Nút iOS -->
+            <button id="overview-btn-ios" onclick="setOverviewScope('ios')"
+              class="overview-scope-btn px-4 py-1.5 rounded-md font-medium text-slate-400 hover:text-white border border-transparent flex items-center gap-2 transition-all focus:outline-none"
+              style="border-color: transparent;">
+              <span class="w-2 h-2 rounded-full bg-brand-ios"></span>
+              <span>iOS</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="text-xs font-mono text-slate-400 flex items-center gap-2">
+          <span id="overview-scope-desc" class="text-slate-300">Tổng hợp cả Google Play & App Store</span>
+        </div>
+      </div>
+
       <!-- 4 HERO KPI METRICS -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        <!-- KPI 1: Rating Snapshot Tổng Thể -->
-        <div
-          class="bg-charcoal-900 rounded-xl p-4 panel-border relative overflow-hidden group hover:border-slate-700 transition-colors">
-          <div
-            class="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full blur-2xl group-hover:bg-sky-500/10 transition-colors">
-          </div>
+        <!-- KPI 1: Điểm Đánh Giá -->
+        <div class="bg-charcoal-900 rounded-xl p-4 panel-border">
           <div class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
-            <span>Điểm Đánh Giá Chung</span>
-            <span class="text-amber-400">★ ★ ★ ★ ★</span>
+            <span id="kpi-score-title">Điểm Đánh Giá Chung</span>
+            <span class="text-amber-400 font-mono text-xs font-bold">★ Rating</span>
           </div>
           <div class="flex items-baseline gap-2 my-2">
             <span id="kpi-avg-score" class="text-3xl font-mono font-bold text-white tracking-tight">4.47</span>
             <span class="text-sm font-mono text-slate-500">/ 5.0</span>
           </div>
-          <div
+          <div id="kpi-score-footer"
             class="text-xs font-mono text-slate-400 flex items-center justify-between pt-2 border-t border-charcoal-800">
             <span class="flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-brand-android"></span>
@@ -235,52 +260,48 @@
           </div>
         </div>
 
-        <!-- KPI 2: Tổng lượt Vote trên Store -->
-        <div
-          class="bg-charcoal-900 rounded-xl p-4 panel-border relative overflow-hidden group hover:border-slate-700 transition-colors">
+        <!-- KPI 2: Tổng Lượt Đánh Giá Store -->
+        <div class="bg-charcoal-900 rounded-xl p-4 panel-border">
           <div class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
-            <span>Lượt Đánh Giá Tích Lũy</span>
-            <span class="text-slate-500 text-[10px]">ALL-TIME</span>
+            <span id="kpi-ratings-title">Tổng Lượt Đánh Giá</span>
+            <span class="text-slate-500 font-mono text-xs">Trên Store</span>
           </div>
           <div class="flex items-baseline gap-2 my-2">
             <span id="kpi-total-ratings" class="text-3xl font-mono font-bold text-white tracking-tight">1,719</span>
             <span class="text-xs font-mono text-slate-400">lượt vote</span>
           </div>
-          <div
+          <div id="kpi-ratings-footer"
             class="text-xs font-mono text-slate-400 flex items-center justify-between pt-2 border-t border-charcoal-800">
             <span>Google Play: <strong id="kpi-android-ratings" class="text-slate-200">1,142</strong></span>
             <span>App Store: <strong id="kpi-ios-ratings" class="text-slate-200">577</strong></span>
           </div>
         </div>
 
-        <!-- KPI 3: Tổng số nhận xét trong Storage -->
-        <div
-          class="bg-charcoal-900 rounded-xl p-4 panel-border relative overflow-hidden group hover:border-slate-700 transition-colors">
+        <!-- KPI 3: Nhận Xét Thu Thập Được -->
+        <div class="bg-charcoal-900 rounded-xl p-4 panel-border">
           <div class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
-            <span>Nhận Xét Đã Lưu</span>
-            <span class="text-emerald-400 font-mono text-[10px]">ZERO-LOSS</span>
+            <span id="kpi-stored-title">Nhận Xét Thu Thập</span>
+            <span class="text-emerald-400 font-mono text-xs">Chi Tiết</span>
           </div>
           <div class="flex items-baseline gap-2 my-2">
             <span id="kpi-stored-reviews"
               class="text-3xl font-mono font-bold text-emerald-400 tracking-tight">362</span>
             <span class="text-xs font-mono text-slate-400">bài viết</span>
           </div>
-          <div class="text-xs font-mono text-slate-400 pt-2 border-t border-charcoal-800 truncate"
-            title="Phạm vi: 2024 đến 2026">
+          <div id="kpi-stored-footer"
+            class="text-xs font-mono text-slate-400 pt-2 border-t border-charcoal-800 truncate">
             Dải ngày: <span id="kpi-date-range" class="text-slate-300">2024-01-25 → 2026-11-14</span>
           </div>
         </div>
 
-        <!-- KPI 4: Tỉ lệ cảm xúc (Sentiment) -->
-        <div
-          class="bg-charcoal-900 rounded-xl p-4 panel-border relative overflow-hidden group hover:border-slate-700 transition-colors">
+        <!-- KPI 4: Sức Khỏe Tích Cực (Sentiment) -->
+        <div class="bg-charcoal-900 rounded-xl p-4 panel-border">
           <div class="text-xs font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center justify-between">
-            <span>Sức Khỏe Cảm Xúc</span>
-            <span id="kpi-positive-pct" class="text-emerald-400 font-mono font-semibold">65.7% Tích cực</span>
+            <span id="kpi-sentiment-title">Tỉ Lệ Hài Lòng</span>
+            <span id="kpi-positive-pct" class="text-emerald-400 font-mono font-bold">65.7%</span>
           </div>
-          <div class="my-2">
-            <!-- Sentiment multi-bar -->
-            <div class="w-full bg-charcoal-800 rounded-full h-3 overflow-hidden flex">
+          <div class="my-2.5">
+            <div class="w-full bg-charcoal-800 rounded-full h-2.5 overflow-hidden flex">
               <div id="bar-pos" style="width: 65.7%" class="bg-emerald-500 h-full transition-all duration-500"
                 title="Tích cực"></div>
               <div id="bar-neu" style="width: 2.5%" class="bg-amber-500 h-full transition-all duration-500"
@@ -291,36 +312,36 @@
           </div>
           <div
             class="text-xs font-mono text-slate-400 flex items-center justify-between pt-2 border-t border-charcoal-800">
-            <span class="text-emerald-400">● <span id="kpi-pos-count">238</span></span>
+            <span class="text-emerald-400">● <span id="kpi-pos-count">238</span> tích cực</span>
             <span class="text-amber-400">● <span id="kpi-neu-count">9</span></span>
-            <span class="text-rose-400">● <span id="kpi-neg-count">115</span></span>
+            <span class="text-rose-400">● <span id="kpi-neg-count">115</span> tiêu cực</span>
           </div>
         </div>
 
       </div>
 
-      <!-- VISUAL PANELS GRID -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- 2 MAIN BALANCED COLUMNS -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- Panel 1: Star Rating Breakdown (1-5 sao) -->
+        <!-- Column 1: Star Breakdown (1-5 sao) -->
         <div class="bg-charcoal-900 rounded-xl p-5 panel-border flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between pb-3 border-b border-charcoal-800 mb-4">
-              <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-                <span>⭐ Phân Bổ Điểm Sao (1 - 5 Sao)</span>
+              <h3 class="text-sm font-semibold text-white">
+                <span id="panel-stars-title-text">Phân Bổ Số Sao Đánh Giá (1 - 5 Sao)</span>
               </h3>
-              <span class="text-[11px] font-mono text-slate-400">Google Play Official</span>
+              <span id="panel-stars-sub" class="text-xs font-mono text-slate-400">Từ dữ liệu Store</span>
             </div>
 
             <div id="stars-breakdown-container" class="space-y-3 font-mono text-xs">
               <!-- Star 5 -->
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-slate-300">5 sao ★★★★★</span>
+                  <span class="text-slate-300 font-medium">5 sao ★★★★★</span>
                   <span class="text-slate-400"><strong class="text-white" id="star-count-5">950</strong> (<span
                       id="star-pct-5">83.2%</span>)</span>
                 </div>
-                <div class="w-full bg-charcoal-800 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-charcoal-800 h-2.5 rounded-full overflow-hidden">
                   <div id="star-bar-5" class="bg-emerald-400 h-full rounded-full transition-all duration-500"
                     style="width: 83.2%"></div>
                 </div>
@@ -328,11 +349,11 @@
               <!-- Star 4 -->
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-slate-300">4 sao ★★★★☆</span>
+                  <span class="text-slate-300 font-medium">4 sao ★★★★☆</span>
                   <span class="text-slate-400"><strong class="text-white" id="star-count-4">69</strong> (<span
                       id="star-pct-4">6.0%</span>)</span>
                 </div>
-                <div class="w-full bg-charcoal-800 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-charcoal-800 h-2.5 rounded-full overflow-hidden">
                   <div id="star-bar-4" class="bg-sky-400 h-full rounded-full transition-all duration-500"
                     style="width: 6.0%"></div>
                 </div>
@@ -340,11 +361,11 @@
               <!-- Star 3 -->
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-slate-300">3 sao ★★★☆☆</span>
+                  <span class="text-slate-300 font-medium">3 sao ★★★☆☆</span>
                   <span class="text-slate-400"><strong class="text-white" id="star-count-3">49</strong> (<span
                       id="star-pct-3">4.3%</span>)</span>
                 </div>
-                <div class="w-full bg-charcoal-800 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-charcoal-800 h-2.5 rounded-full overflow-hidden">
                   <div id="star-bar-3" class="bg-amber-400 h-full rounded-full transition-all duration-500"
                     style="width: 4.3%"></div>
                 </div>
@@ -352,11 +373,11 @@
               <!-- Star 2 -->
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-slate-300">2 sao ★★☆☆☆</span>
+                  <span class="text-slate-300 font-medium">2 sao ★★☆☆☆</span>
                   <span class="text-slate-400"><strong class="text-white" id="star-count-2">19</strong> (<span
                       id="star-pct-2">1.7%</span>)</span>
                 </div>
-                <div class="w-full bg-charcoal-800 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-charcoal-800 h-2.5 rounded-full overflow-hidden">
                   <div id="star-bar-2" class="bg-orange-400 h-full rounded-full transition-all duration-500"
                     style="width: 1.7%"></div>
                 </div>
@@ -364,11 +385,11 @@
               <!-- Star 1 -->
               <div>
                 <div class="flex items-center justify-between mb-1">
-                  <span class="text-slate-300">1 sao ★☆☆☆☆</span>
+                  <span class="text-slate-300 font-medium">1 sao ★☆☆☆☆</span>
                   <span class="text-slate-400"><strong class="text-white" id="star-count-1">49</strong> (<span
                       id="star-pct-1">4.3%</span>)</span>
                 </div>
-                <div class="w-full bg-charcoal-800 h-2 rounded-full overflow-hidden">
+                <div class="w-full bg-charcoal-800 h-2.5 rounded-full overflow-hidden">
                   <div id="star-bar-1" class="bg-rose-400 h-full rounded-full transition-all duration-500"
                     style="width: 4.3%"></div>
                 </div>
@@ -376,126 +397,158 @@
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-charcoal-800 text-[11px] font-mono text-slate-500 flex justify-between">
-            <span>Dữ liệu nhúng ds:5 Google Play</span>
-            <span>Cập nhật qua Playwright</span>
+          <div class="mt-4 pt-3 border-t border-charcoal-800 text-xs font-mono text-slate-500 flex justify-between">
+            <span>Tỷ lệ phân bố số sao</span>
+            <span class="text-slate-400">Chuẩn hóa 1-5 sao</span>
           </div>
         </div>
 
-        <!-- Panel 2: Biểu Đồ Cảm Xúc Chart -->
+        <!-- Column 2: Sentiment Doughnut & Detailed Breakdown -->
         <div class="bg-charcoal-900 rounded-xl p-5 panel-border flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between pb-3 border-b border-charcoal-800 mb-4">
-              <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-                <span>🎯 Phân Loại Cảm Xúc Nhận Xét</span>
+              <h3 class="text-sm font-semibold text-white">
+                <span id="panel-sent-title-text">Phân Loại Cảm Xúc Nhận Xét</span>
               </h3>
-              <span class="text-[11px] font-mono text-slate-400">Total: 362</span>
-            </div>
-            <div class="relative h-44 flex items-center justify-center">
-              <canvas id="sentimentChart"></canvas>
-            </div>
-          </div>
-          <div class="grid grid-cols-3 gap-2 pt-3 border-t border-charcoal-800 text-center font-mono text-xs">
-            <div class="bg-charcoal-850 p-2 rounded border border-charcoal-750">
-              <div class="text-emerald-400 font-bold" id="card-pos-count">238</div>
-              <div class="text-[10px] text-slate-400">Tích cực (4-5★)</div>
-            </div>
-            <div class="bg-charcoal-850 p-2 rounded border border-charcoal-750">
-              <div class="text-amber-400 font-bold" id="card-neu-count">9</div>
-              <div class="text-[10px] text-slate-400">Trung tính (3★)</div>
-            </div>
-            <div class="bg-charcoal-850 p-2 rounded border border-charcoal-750">
-              <div class="text-rose-400 font-bold" id="card-neg-count">115</div>
-              <div class="text-[10px] text-slate-400">Tiêu cực (1-2★)</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Panel 3: So Sánh Hai Nền Tảng (Android vs iOS) -->
-        <div class="bg-charcoal-900 rounded-xl p-5 panel-border flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between pb-3 border-b border-charcoal-800 mb-4">
-              <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-                <span>📱 So Sánh Theo Store</span>
-              </h3>
-              <span class="text-[11px] font-mono text-slate-400">Production IDs</span>
+              <span id="panel-sent-sub" class="text-xs font-mono text-slate-400">Total: 362 bài</span>
             </div>
 
-            <div class="space-y-4 font-mono text-xs">
-              <!-- Android Box -->
-              <div class="bg-charcoal-850 p-3 rounded-lg border border-charcoal-750">
-                <div class="flex items-center justify-between mb-1.5">
-                  <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-brand-android"></span>
-                    <strong class="text-white">Google Play Store</strong>
-                  </div>
-                  <span
-                    class="text-xs px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">4.62
-                    ★</span>
-                </div>
-                <div class="text-[11px] text-slate-400 space-y-0.5">
-                  <div>Package: <code class="text-sky-300">com.edupia.edupiaclass.vn</code></div>
-                  <div>Tổng vote: <span class="text-slate-200">1,142</span> • Nhận xét đã lưu: <span
-                      class="text-slate-200">207</span></div>
-                  <div>Cơ chế: <span class="text-slate-300">Playwright Headless + Modal Dialog</span></div>
-                </div>
+            <!-- Chart + Details flex layout -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+              <div class="relative h-44 flex items-center justify-center">
+                <canvas id="sentimentChart"></canvas>
               </div>
 
-              <!-- iOS Box -->
-              <div class="bg-charcoal-850 p-3 rounded-lg border border-charcoal-750">
-                <div class="flex items-center justify-between mb-1.5">
+              <div class="space-y-2.5 font-mono text-xs">
+                <!-- Positive Row -->
+                <div
+                  class="bg-charcoal-850 p-2.5 rounded-lg border border-charcoal-750 flex items-center justify-between">
                   <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-brand-ios"></span>
-                    <strong class="text-white">Apple App Store</strong>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <span class="text-slate-300 font-medium">Tích cực (4-5★)</span>
                   </div>
-                  <span class="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">4.18
-                    ★</span>
+                  <div>
+                    <strong class="text-emerald-400 text-sm" id="card-pos-count">238</strong>
+                    <span class="text-slate-400 text-[11px]" id="card-pos-pct">(65.7%)</span>
+                  </div>
                 </div>
-                <div class="text-[11px] text-slate-400 space-y-0.5">
-                  <div>AppStore ID: <code class="text-sky-300">6475161683</code> (vn)</div>
-                  <div>Tổng vote: <span class="text-slate-200">577</span> • Nhận xét đã lưu: <span
-                      class="text-slate-200">155</span></div>
-                  <div>Cơ chế: <span class="text-slate-300">iTunes Lookup API + RSS Multi-Page</span></div>
+
+                <!-- Neutral Row -->
+                <div
+                  class="bg-charcoal-850 p-2.5 rounded-lg border border-charcoal-750 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                    <span class="text-slate-300 font-medium">Trung tính (3★)</span>
+                  </div>
+                  <div>
+                    <strong class="text-amber-400 text-sm" id="card-neu-count">9</strong>
+                    <span class="text-slate-400 text-[11px]" id="card-neu-pct">(2.5%)</span>
+                  </div>
+                </div>
+
+                <!-- Negative Row -->
+                <div
+                  class="bg-charcoal-850 p-2.5 rounded-lg border border-charcoal-750 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                    <span class="text-slate-300 font-medium">Tiêu cực (1-2★)</span>
+                  </div>
+                  <div>
+                    <strong class="text-rose-400 text-sm" id="card-neg-count">115</strong>
+                    <span class="text-slate-400 text-[11px]" id="card-neg-pct">(31.8%)</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-charcoal-800 text-[11px] font-mono text-slate-500 flex justify-between">
-            <span>Dữ liệu lưu tại: <code class="text-slate-400">./data/apps/uniclass/</code></span>
+          <div
+            class="mt-4 pt-3 border-t border-charcoal-800 text-xs font-mono text-slate-500 flex justify-between items-center">
+            <span>Phân tích theo thang điểm cảm xúc</span>
+            <button onclick="switchTab('explorer')" class="text-sky-400 hover:text-sky-300 text-xs font-medium">
+              Khám phá toàn bộ nhận xét →
+            </button>
           </div>
         </div>
 
       </div>
 
-      <!-- RECENT SNAPSHOTS TIMELINE -->
+      <!-- REVIEW VOLUME BY DAY (STACKED COLUMN CHART) -->
+      <div class="bg-charcoal-900 rounded-xl p-5 panel-border">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-charcoal-800 mb-4 gap-3">
+          <div>
+            <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+              <span id="stacked-chart-title">Số Lượng Nhận Xét Theo Ngày</span>
+              <span id="stacked-chart-badge"
+                class="px-2 py-0.5 rounded text-[10px] font-mono bg-charcoal-800 text-brand-cyan border border-charcoal-700">Stacked
+                Bar</span>
+            </h3>
+            <p class="text-xs text-slate-400 font-mono mt-0.5" id="stacked-chart-sub">
+              Tổng hợp biến động số lượng nhận xét và phân bổ cảm xúc theo ngày đăng
+            </p>
+          </div>
+
+          <!-- Controls: Mode Stack (Cảm xúc / Nền tảng) + Khoảng thời gian (14 ngày / 30 ngày / Tất cả) -->
+          <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+            <!-- Chế độ phân nhóm (Stack by Sentiment vs Platform) -->
+            <div id="stacked-group-switch"
+              class="inline-flex p-0.5 bg-charcoal-950 rounded-lg border border-charcoal-800">
+              <button id="btn-stack-sentiment" onclick="setDailyChartGrouping('sentiment')"
+                class="px-2.5 py-1 rounded-md text-[11px] font-medium bg-charcoal-800 text-brand-cyan border border-charcoal-700 transition-colors">
+                Theo Cảm Xúc
+              </button>
+              <button id="btn-stack-platform" onclick="setDailyChartGrouping('platform')"
+                class="px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-white border border-transparent transition-colors">
+                Theo Nền Tảng
+              </button>
+            </div>
+
+            <!-- Khoảng thời gian hiển thị (14 ngày / 30 ngày / 60 ngày / Tất cả) -->
+            <select id="stacked-chart-range" onchange="renderDailyStackedChart()"
+              class="bg-charcoal-850 border border-charcoal-750 text-slate-300 rounded-lg px-2.5 py-1 text-[11px] focus:outline-none focus:border-brand-cyan transition-colors">
+              <option value="14">14 ngày gần nhất</option>
+              <option value="30" selected>30 ngày gần nhất</option>
+              <option value="60">60 ngày gần nhất</option>
+              <option value="all">Tất cả các ngày</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="relative h-64 w-full">
+          <canvas id="dailyStackedChart"></canvas>
+        </div>
+
+        <div
+          class="mt-4 pt-3 border-t border-charcoal-800 text-xs font-mono text-slate-500 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <div class="flex items-center gap-3" id="stacked-chart-summary">
+            <span>Đang hiển thị <strong class="text-slate-300" id="stacked-days-count">0</strong> ngày (<strong
+                class="text-brand-cyan" id="stacked-revs-count">0</strong> nhận xét)</span>
+          </div>
+          <!-- <div class="text-[11px] text-slate-400 flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-brand-android"></span>Cột 1 (trái): Android</span>
+            <span class="text-slate-600">•</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-brand-ios"></span>Cột 2 (phải): iOS</span>
+          </div> -->
+        </div>
+      </div>
+
+      <!-- STORE HIGHLIGHTS & QUICK ACTIONS -->
       <div class="bg-charcoal-900 rounded-xl p-5 panel-border">
         <div class="flex items-center justify-between pb-3 border-b border-charcoal-800 mb-4">
-          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
-            <span>📈 Lịch Sử Thu Thập Điểm Snapshot Gần Nhất (rating-history.jsonl)</span>
-          </h3>
-          <button onclick="refreshData()"
-            class="text-xs font-mono text-sky-400 hover:text-sky-300 flex items-center gap-1">
-            <span>Tải lại</span>
-          </button>
+          <div>
+            <h3 class="text-sm font-semibold text-white" id="panel-platform-title-text">
+              Chi Tiết Theo Cửa Hàng Ứng Dụng
+            </h3>
+            <p class="text-xs text-slate-400 font-mono mt-0.5" id="panel-platform-sub">
+              Thông tin cửa hàng và lối tắt đến danh sách nhận xét
+            </p>
+          </div>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left font-mono text-xs">
-            <thead>
-              <tr class="text-slate-400 border-b border-charcoal-800 text-[11px]">
-                <th class="py-2 px-3">Thời Điểm Thu Thập</th>
-                <th class="py-2 px-3">Nền Tảng</th>
-                <th class="py-2 px-3">Điểm Đánh Giá</th>
-                <th class="py-2 px-3">Tổng Lượt Vote</th>
-                <th class="py-2 px-3">Snapshot ID</th>
-              </tr>
-            </thead>
-            <tbody id="snapshots-table-body" class="divide-y divide-charcoal-800/60 text-slate-300">
-              <tr>
-                <td colspan="5" class="py-4 text-center text-slate-500">Đang tải lịch sử snapshot...</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <div id="panel-platform-content">
+          <!-- Rendered dynamically by renderComparisonBox or renderSinglePlatformBox -->
         </div>
       </div>
 
@@ -784,7 +837,6 @@
 
           <!-- Architecture Meta Box -->
           <div class="mt-4 pt-3 border-t border-charcoal-800 text-[11px] font-mono text-slate-400 space-y-1">
-            <div>Kiến trúc: <strong class="text-white">Modular Monolith Zero-Database</strong></div>
             <div>File storage: <code class="text-emerald-400">./data/apps/uniclass/</code></div>
             <div>Scraper Engine: <code class="text-sky-300">Playwright Chromium Headless + iTunes RSS</code></div>
           </div>
@@ -794,9 +846,6 @@
         <div class="bg-charcoal-900 rounded-xl p-5 panel-border flex flex-col">
           <div class="flex items-center justify-between pb-3 border-b border-charcoal-800 mb-3 font-mono text-xs">
             <div class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
-              <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
-              <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
               <span class="ml-2 text-slate-400">API Response Console</span>
             </div>
             <div class="flex items-center gap-2">
@@ -851,6 +900,8 @@
      */
     const state = {
       overview: null,
+      overviewScope: 'all', // 'all' (Chung) | 'android' | 'ios'
+      snapshots: [],
       allReviews: [],
       filteredReviews: [],
       currentPage: 1,
@@ -866,6 +917,8 @@
         specificDate: null,
       },
       sentimentChart: null,
+      dailyStackedChart: null,
+      dailyChartGrouping: 'sentiment',
       currentModalJson: '',
     };
 
@@ -920,10 +973,9 @@
         btn.style.borderColor = "#23324E";
       }
 
-      // Render lại biểu đồ nếu chuyển về tab overview
+      // Render lại biểu đồ và các thẻ nếu chuyển về tab overview
       if (tabId === 'overview' && state.overview) {
-        const sent = state.overview.overallSentiment || state.overview.sentimentCounts;
-        if (sent) renderSentimentChart(sent);
+        updateOverviewUI(state.overview);
       }
 
       // Đảm bảo danh sách nhận xét được cập nhật ngay khi bấm vào tab Danh Sách Nhận Xét
@@ -937,6 +989,256 @@
       if (tabId === 'daily') {
         renderDailyHistoryTable();
       }
+    }
+
+    /**
+     * Chuyển đổi phạm vi hiển thị Tổng Quan & Phân Tích (Chung, Android, iOS)
+     * @param scope Phạm vi cần chọn ("all" | "android" | "ios")
+     */
+    function setOverviewScope(scope) {
+      state.overviewScope = scope;
+
+      const buttons = {
+        all: document.getElementById("overview-btn-all"),
+        android: document.getElementById("overview-btn-android"),
+        ios: document.getElementById("overview-btn-ios"),
+      };
+
+      const activeClasses = {
+        all: { text: "text-brand-cyan", border: "#23324E" },
+        android: { text: "text-brand-android", border: "#164E36" },
+        ios: { text: "text-brand-ios", border: "#1E3A8A" },
+      };
+
+      for (const [key, btn] of Object.entries(buttons)) {
+        if (!btn) continue;
+        btn.classList.remove(
+          "bg-charcoal-800",
+          "text-brand-cyan",
+          "text-brand-android",
+          "text-brand-ios",
+          "border-charcoal-700",
+          "font-semibold",
+          "shadow-sm"
+        );
+        btn.classList.add("bg-transparent", "text-slate-400", "font-medium");
+        btn.style.borderColor = "transparent";
+
+        if (key === scope) {
+          btn.classList.remove("bg-transparent", "text-slate-400", "font-medium");
+          btn.classList.add("bg-charcoal-800", activeClasses[key].text, "font-semibold", "shadow-sm");
+          btn.style.borderColor = activeClasses[key].border;
+        }
+      }
+
+      const descEl = document.getElementById("overview-scope-desc");
+      if (descEl) {
+        if (scope === "android") {
+          descEl.textContent = "Số liệu ứng dụng trên Google Play";
+        } else if (scope === "ios") {
+          descEl.textContent = "Số liệu ứng dụng trên Apple App Store";
+        } else {
+          descEl.textContent = "Tổng hợp cả Google Play & App Store";
+        }
+      }
+
+      if (state.overview) {
+        updateOverviewUI(state.overview);
+      }
+    }
+
+    /**
+     * Chuyển thẳng sang tab Danh Sách Nhận Xét với bộ lọc nền tảng được thiết lập sẵn
+     * @param platform Nền tảng cần lọc ("android" hoặc "ios")
+     */
+    function switchTabToReviews(platform) {
+      switchTab('explorer');
+      setPlatformFilter(platform);
+    }
+
+    /**
+     * Tính số lượng cảm xúc từ danh sách nhận xét
+     * @param revs Danh sách các bài nhận xét
+     * @returns { positive: number, neutral: number, negative: number }
+     */
+    function calculateSentimentCounts(revs) {
+      let positive = 0;
+      let neutral = 0;
+      let negative = 0;
+      for (const r of revs || []) {
+        if (r.sentiment === "positive" || r.rating >= 4) positive++;
+        else if (r.sentiment === "neutral" || r.rating === 3) neutral++;
+        else negative++;
+      }
+      return { positive, neutral, negative };
+    }
+
+    /**
+     * Tính phân bổ số sao từ 1 đến 5 sao của danh sách nhận xét
+     * @param revs Danh sách các bài nhận xét
+     * @returns Đối tượng đếm số lượng từng mức sao { 1, 2, 3, 4, 5 }
+     */
+    function calculateStarsBreakdown(revs) {
+      const breakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      for (const r of revs || []) {
+        if (r.rating >= 1 && r.rating <= 5) {
+          breakdown[r.rating] = (breakdown[r.rating] || 0) + 1;
+        }
+      }
+      return breakdown;
+    }
+
+    /**
+     * Tính toán chuỗi dải ngày định dạng YYYY-MM-DD từ danh sách nhận xét
+     * @param revs Danh sách các bài nhận xét
+     * @returns Chuỗi dải ngày "Từ ngày → Đến ngày"
+     */
+    function computeDateRange(revs) {
+      if (!revs || revs.length === 0) return "2024-01-25 → 2026-11-14";
+      const dates = revs.map(r => (r.createdAt || "").slice(0, 10)).filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort();
+      if (dates.length === 0) return "2024-01-25 → 2026-11-14";
+      return `${dates[0]} → ${dates[dates.length - 1]}`;
+    }
+
+    /**
+     * Kết xuất khối so sánh 2 nền tảng Google Play và App Store cho chế độ Chung
+     * @param data Dữ liệu số liệu snapshot và nhận xét của hai nền tảng
+     */
+    function renderComparisonBox(data) {
+      const container = document.getElementById("panel-platform-content");
+      if (!container) return;
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Google Play Store Card -->
+          <div class="bg-charcoal-850 p-4 rounded-xl border border-charcoal-750 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-brand-android"></span>
+                  <strong class="text-white font-medium text-sm">Google Play Store</strong>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-bold text-xs">
+                  ${Number(data.androidAvg).toFixed(2)} ★
+                </span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs font-mono py-1">
+                <div class="bg-charcoal-900/60 p-2 rounded border border-charcoal-800">
+                  <div class="text-slate-400 text-[11px]">Tổng lượt vote</div>
+                  <div class="text-white font-bold">${data.androidTotal.toLocaleString()}</div>
+                </div>
+                <div class="bg-charcoal-900/60 p-2 rounded border border-charcoal-800">
+                  <div class="text-slate-400 text-[11px]">Nhận xét đã lưu</div>
+                  <div class="text-emerald-400 font-bold">${data.androidRevsCount.toLocaleString()}</div>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-slate-400 mt-2">
+                Gói ứng dụng: <code class="text-sky-300">com.edupia.edupiaclass.vn</code>
+              </div>
+            </div>
+            <button onclick="switchTabToReviews('android')"
+              class="w-full py-2 px-3 rounded-lg bg-charcoal-800 hover:bg-charcoal-750 text-emerald-400 hover:text-emerald-300 border border-charcoal-700 flex items-center justify-center gap-1.5 transition-colors text-xs font-mono font-medium">
+              <span>Xem ${data.androidRevsCount.toLocaleString()} nhận xét Android</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <!-- Apple App Store Card -->
+          <div class="bg-charcoal-850 p-4 rounded-xl border border-charcoal-750 flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-brand-ios"></span>
+                  <strong class="text-white font-medium text-sm">Apple App Store</strong>
+                </div>
+                <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono font-bold text-xs">
+                  ${Number(data.iosAvg).toFixed(2)} ★
+                </span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs font-mono py-1">
+                <div class="bg-charcoal-900/60 p-2 rounded border border-charcoal-800">
+                  <div class="text-slate-400 text-[11px]">Tổng lượt vote</div>
+                  <div class="text-white font-bold">${data.iosTotal.toLocaleString()}</div>
+                </div>
+                <div class="bg-charcoal-900/60 p-2 rounded border border-charcoal-800">
+                  <div class="text-slate-400 text-[11px]">Nhận xét đã lưu</div>
+                  <div class="text-blue-400 font-bold">${data.iosRevsCount.toLocaleString()}</div>
+                </div>
+              </div>
+              <div class="text-[11px] font-mono text-slate-400 mt-2">
+                App Store ID: <code class="text-sky-300">6475161683 (vn)</code>
+              </div>
+            </div>
+            <button onclick="switchTabToReviews('ios')"
+              class="w-full py-2 px-3 rounded-lg bg-charcoal-800 hover:bg-charcoal-750 text-blue-400 hover:text-blue-300 border border-charcoal-700 flex items-center justify-center gap-1.5 transition-colors text-xs font-mono font-medium">
+              <span>Xem ${data.iosRevsCount.toLocaleString()} nhận xét iOS</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * Kết xuất khối thông tin chuyên sâu của một nền tảng đơn lẻ (Android hoặc iOS)
+     * @param platform Nền tảng ("android" hoặc "ios")
+     * @param info Dữ liệu số liệu thống kê của nền tảng
+     */
+    function renderSinglePlatformBox(platform, info) {
+      const container = document.getElementById("panel-platform-content");
+      if (!container) return;
+
+      const isAndroid = platform === "android";
+      const color = isAndroid ? "emerald" : "blue";
+      const brandColor = isAndroid ? "bg-brand-android" : "bg-brand-ios";
+      const title = isAndroid ? "Google Play Store" : "Apple App Store";
+      const idLabel = isAndroid ? "Package Name" : "App Store ID";
+      const idValue = isAndroid ? "com.edupia.edupiaclass.vn" : "6475161683 (vn)";
+      const avgScore = isAndroid ? Number(info.androidAvg).toFixed(2) : Number(info.iosAvg).toFixed(2);
+      const totalVotes = isAndroid ? info.androidTotal.toLocaleString() : info.iosTotal.toLocaleString();
+      const storedCount = isAndroid ? info.androidRevsCount.toLocaleString() : info.iosRevsCount.toLocaleString();
+
+      const posCount = info.sentiment?.positive ?? 0;
+      const neuCount = info.sentiment?.neutral ?? 0;
+      const negCount = info.sentiment?.negative ?? 0;
+      const totalSent = posCount + neuCount + negCount || 1;
+      const posPct = ((posCount / totalSent) * 100).toFixed(1);
+
+      container.innerHTML = `
+        <div class="bg-charcoal-850 p-4 rounded-xl border border-charcoal-750 space-y-4 font-mono text-xs">
+          <div class="flex items-center justify-between pb-3 border-b border-charcoal-750">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full ${brandColor}"></span>
+              <span class="text-white font-bold text-sm">${title}</span>
+            </div>
+            <span class="px-2.5 py-1 rounded bg-${color}-500/10 text-${color}-400 border border-${color}-500/20 font-bold text-xs">
+              ${avgScore} ★
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div class="bg-charcoal-900/60 p-3 rounded-lg border border-charcoal-800">
+              <div class="text-slate-400 text-[11px] mb-1">Mã định danh</div>
+              <div class="text-sky-300 font-semibold truncate" title="${idValue}">${idValue}</div>
+            </div>
+            <div class="bg-charcoal-900/60 p-3 rounded-lg border border-charcoal-800">
+              <div class="text-slate-400 text-[11px] mb-1">Tổng lượt vote Store</div>
+              <div class="text-white font-bold">${totalVotes} lượt</div>
+            </div>
+            <div class="bg-charcoal-900/60 p-3 rounded-lg border border-charcoal-800">
+              <div class="text-slate-400 text-[11px] mb-1">Nhận xét đã lưu</div>
+              <div class="text-${color}-400 font-bold">${storedCount} bài (${posPct}% tích cực)</div>
+            </div>
+          </div>
+
+          <div class="pt-1">
+            <button onclick="switchTabToReviews('${platform}')"
+              class="w-full py-2.5 px-3 rounded-lg bg-charcoal-800 hover:bg-charcoal-750 text-${color}-400 hover:text-${color}-300 border border-charcoal-700 flex items-center justify-center gap-2 transition-colors font-medium text-xs">
+              <span>Xem toàn bộ ${storedCount} nhận xét ${isAndroid ? 'Android' : 'iOS'} </span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      `;
     }
 
     /**
@@ -957,10 +1259,13 @@
     }
 
     /**
-     * Cập nhật các thẻ KPI và biểu đồ từ dữ liệu Overview
+     * Cập nhật các thẻ KPI, phân bổ điểm sao, biểu đồ cảm xúc và thông tin nền tảng từ dữ liệu Overview
+     * @param ov Dữ liệu AppOverview trả về từ backend API
      */
     function updateOverviewUI(ov) {
       if (!ov) return;
+
+      const scope = state.overviewScope || 'all';
 
       const setElText = (id, text) => {
         const el = document.getElementById(id);
@@ -969,6 +1274,10 @@
       const setElWidth = (id, width) => {
         const el = document.getElementById(id);
         if (el) el.style.width = width;
+      };
+      const setElHtml = (id, html) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
       };
 
       // Trích xuất snapshot từng nền tảng từ ov.platforms
@@ -979,68 +1288,673 @@
       const iosAvg = iosSnap?.averageRating ?? 4.18;
       const androidTotal = androidSnap?.totalRatings ?? 1142;
       const iosTotal = iosSnap?.totalRatings ?? 577;
-      const totalRatings = androidTotal + iosTotal;
-      const weightedAvg = totalRatings > 0 ? ((androidAvg * androidTotal + iosAvg * iosTotal) / totalRatings).toFixed(2) : "4.47";
+      const totalStoreRatings = androidTotal + iosTotal;
+      const weightedAvg = totalStoreRatings > 0
+        ? ((androidAvg * androidTotal + iosAvg * iosTotal) / totalStoreRatings).toFixed(2)
+        : "4.47";
 
-      setElText("kpi-avg-score", weightedAvg);
-      setElText("kpi-android-score", Number(androidAvg).toFixed(2));
-      setElText("kpi-ios-score", Number(iosAvg).toFixed(2));
-
+      // Cập nhật Quick badges trên Top Nav (luôn hiển thị snapshot 2 store)
       setElText("quick-android-score", `${Number(androidAvg).toFixed(2)}★`);
       setElText("quick-android-total", `(${androidTotal.toLocaleString()})`);
       setElText("quick-ios-score", `${Number(iosAvg).toFixed(2)}★`);
       setElText("quick-ios-total", `(${iosTotal.toLocaleString()})`);
 
-      setElText("kpi-total-ratings", totalRatings.toLocaleString());
-      setElText("kpi-android-ratings", androidTotal.toLocaleString());
-      setElText("kpi-ios-ratings", iosTotal.toLocaleString());
+      // Nhận xét theo nền tảng
+      const androidRevs = (state.allReviews || []).filter(r => r.platform === 'android');
+      const iosRevs = (state.allReviews || []).filter(r => r.platform === 'ios');
+      const totalRevsCount = ov.totalReviews ?? (state.allReviews || []).length;
+      const androidRevsCount = ov.platforms?.android?.totalReviews ?? androidRevs.length;
+      const iosRevsCount = ov.platforms?.ios?.totalReviews ?? iosRevs.length;
 
-      const totalReviewsCount = ov.totalReviews ?? 0;
-      setElText("kpi-stored-reviews", totalReviewsCount.toLocaleString());
-      setElText("tab-review-count", totalReviewsCount.toLocaleString());
+      setElText("tab-review-count", totalRevsCount.toLocaleString());
 
-      // Cập nhật phân bổ số sao từ Android Snapshot nếu có
-      if (androidSnap?.ratingBreakdown) {
-        const bd = androidSnap.ratingBreakdown;
-        const sumStars = Object.values(bd).reduce((a, b) => a + b, 0) || 1;
-        for (let s = 1; s <= 5; s++) {
-          const c = bd[s] ?? 0;
-          const p = ((c / sumStars) * 100).toFixed(1);
-          setElText(`star-count-${s}`, c.toLocaleString());
-          setElText(`star-pct-${s}`, `${p}%`);
-          setElWidth(`star-bar-${s}`, `${p}%`);
+      // Xác định dữ liệu hiển thị theo scope
+      let activeSentiment = { positive: 0, neutral: 0, negative: 0 };
+      let activeScore = "4.47";
+      let activeTotalRatings = totalStoreRatings;
+      let activeStoredReviews = totalRevsCount;
+      let activeBreakdown = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      let isStoreBreakdown = false;
+
+      if (scope === 'android') {
+        // --- CHẾ ĐỘ ANDROID ---
+        activeScore = Number(androidAvg).toFixed(2);
+        activeTotalRatings = androidTotal;
+        activeStoredReviews = androidRevsCount;
+
+        if (ov.platforms?.android?.sentiment) {
+          activeSentiment = ov.platforms.android.sentiment;
+        } else {
+          activeSentiment = calculateSentimentCounts(androidRevs);
         }
+
+        if (androidSnap?.ratingBreakdown) {
+          activeBreakdown = androidSnap.ratingBreakdown;
+          isStoreBreakdown = true;
+        } else if (ov.platforms?.android?.ratingBreakdown) {
+          activeBreakdown = ov.platforms.android.ratingBreakdown;
+        } else {
+          activeBreakdown = calculateStarsBreakdown(androidRevs);
+        }
+
+        // KPI 1: Điểm đánh giá
+        setElText("kpi-score-title", "Điểm Đánh Giá Android");
+        setElText("kpi-avg-score", activeScore);
+        setElHtml("kpi-score-footer", `
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-brand-android"></span>
+            Gói: <code class="text-sky-300 text-[11px]">com.edupia.edupiaclass.vn</code>
+          </span>
+          <span class="text-emerald-400 font-semibold">Google Play</span>
+        `);
+
+        // KPI 2: Lượt đánh giá
+        setElText("kpi-ratings-title", "Lượt Đánh Giá Android");
+        setElText("kpi-total-ratings", activeTotalRatings.toLocaleString());
+        setElHtml("kpi-ratings-footer", `
+          <span>Tỉ lệ: <strong class="text-emerald-400">${((androidTotal / (totalStoreRatings || 1)) * 100).toFixed(1)}%</strong> tổng vote</span>
+          <span>Google Play Store</span>
+        `);
+
+        // KPI 3: Nhận xét đã lưu
+        setElText("kpi-stored-title", "Nhận Xét Android Đã Lưu");
+        setElText("kpi-stored-reviews", activeStoredReviews.toLocaleString());
+        setElHtml("kpi-stored-footer", `
+          <span>Dải ngày: <span class="text-slate-300">${computeDateRange(androidRevs)}</span></span>
+        `);
+
+        // Panel 1: Stars
+        setElText("panel-stars-title-text", "Phân Bổ Điểm Sao Google Play (1 - 5 Sao)");
+        setElText("panel-stars-sub", isStoreBreakdown ? `Google Play (${androidTotal.toLocaleString()} lượt vote)` : `Từ ${activeStoredReviews} bài nhận xét Android`);
+
+        // Panel 2: Sentiment
+        setElText("panel-sent-title-text", "Phân Loại Cảm Xúc Android");
+        setElText("panel-sent-sub", `Total: ${activeStoredReviews} bài`);
+
+        // Panel 3: Android Platform Card
+        setElText("panel-platform-title-text", "Chi Tiết Nền Tảng Google Play");
+        setElText("panel-platform-sub", "Thông tin cửa hàng và lối tắt đến danh sách nhận xét");
+        renderSinglePlatformBox('android', {
+          androidAvg,
+          androidTotal,
+          androidRevsCount,
+          androidRevs,
+          sentiment: activeSentiment,
+        });
+
+      } else if (scope === 'ios') {
+        // --- CHẾ ĐỘ IOS ---
+        activeScore = Number(iosAvg).toFixed(2);
+        activeTotalRatings = iosTotal;
+        activeStoredReviews = iosRevsCount;
+
+        if (ov.platforms?.ios?.sentiment) {
+          activeSentiment = ov.platforms.ios.sentiment;
+        } else {
+          activeSentiment = calculateSentimentCounts(iosRevs);
+        }
+
+        if (ov.platforms?.ios?.ratingBreakdown) {
+          activeBreakdown = ov.platforms.ios.ratingBreakdown;
+        } else {
+          activeBreakdown = calculateStarsBreakdown(iosRevs);
+        }
+
+        // KPI 1: Điểm đánh giá
+        setElText("kpi-score-title", "Điểm Đánh Giá iOS");
+        setElText("kpi-avg-score", activeScore);
+        setElHtml("kpi-score-footer", `
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-brand-ios"></span>
+            App ID: <code class="text-sky-300 text-[11px]">6475161683 (vn)</code>
+          </span>
+          <span class="text-blue-400 font-semibold">App Store</span>
+        `);
+
+        // KPI 2: Lượt đánh giá
+        setElText("kpi-ratings-title", "Lượt Đánh Giá iOS");
+        setElText("kpi-total-ratings", activeTotalRatings.toLocaleString());
+        setElHtml("kpi-ratings-footer", `
+          <span>Tỉ lệ: <strong class="text-blue-400">${((iosTotal / (totalStoreRatings || 1)) * 100).toFixed(1)}%</strong> tổng vote</span>
+          <span>Apple App Store</span>
+        `);
+
+        // KPI 3: Nhận xét đã lưu
+        setElText("kpi-stored-title", "Nhận Xét iOS Đã Lưu");
+        setElText("kpi-stored-reviews", activeStoredReviews.toLocaleString());
+        setElHtml("kpi-stored-footer", `
+          <span>Dải ngày: <span class="text-slate-300">${computeDateRange(iosRevs)}</span></span>
+        `);
+
+        // Panel 1: Stars
+        setElText("panel-stars-title-text", "Phân Bổ Điểm Sao Apple App Store (1 - 5 Sao)");
+        setElText("panel-stars-sub", `Thống kê từ ${activeStoredReviews} bài nhận xét iOS`);
+
+        // Panel 2: Sentiment
+        setElText("panel-sent-title-text", "Phân Loại Cảm Xúc iOS");
+        setElText("panel-sent-sub", `Total: ${activeStoredReviews} bài`);
+
+        // Panel 3: iOS Platform Card
+        setElText("panel-platform-title-text", "Chi Tiết Nền Tảng Apple App Store");
+        setElText("panel-platform-sub", "Thông tin cửa hàng và lối tắt đến danh sách nhận xét");
+        renderSinglePlatformBox('ios', {
+          iosAvg,
+          iosTotal,
+          iosRevsCount,
+          iosRevs,
+          sentiment: activeSentiment,
+        });
+
+      } else {
+        // --- CHẾ ĐỘ CHUNG (CẢ 2 NỀN TẢNG) ---
+        activeScore = weightedAvg;
+        activeTotalRatings = totalStoreRatings;
+        activeStoredReviews = totalRevsCount;
+
+        activeSentiment = ov.overallSentiment || ov.sentimentCounts || calculateSentimentCounts(state.allReviews || []);
+
+        if (ov.overallRatingBreakdown) {
+          activeBreakdown = ov.overallRatingBreakdown;
+        } else {
+          activeBreakdown = calculateStarsBreakdown(state.allReviews || []);
+        }
+
+        // KPI 1: Điểm đánh giá
+        setElText("kpi-score-title", "Điểm Đánh Giá Chung");
+        setElText("kpi-avg-score", activeScore);
+        setElHtml("kpi-score-footer", `
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-brand-android"></span>
+            Android: <strong class="text-slate-200">${Number(androidAvg).toFixed(2)}</strong>
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-brand-ios"></span>
+            iOS: <strong class="text-slate-200">${Number(iosAvg).toFixed(2)}</strong>
+          </span>
+        `);
+
+        // KPI 2: Lượt đánh giá
+        setElText("kpi-ratings-title", "Tổng Lượt Đánh Giá");
+        setElText("kpi-total-ratings", activeTotalRatings.toLocaleString());
+        setElHtml("kpi-ratings-footer", `
+          <span>Google Play: <strong class="text-slate-200">${androidTotal.toLocaleString()}</strong></span>
+          <span>App Store: <strong class="text-slate-200">${iosTotal.toLocaleString()}</strong></span>
+        `);
+
+        // KPI 3: Nhận xét đã lưu
+        setElText("kpi-stored-title", "Nhận Xét Thu Thập");
+        setElText("kpi-stored-reviews", activeStoredReviews.toLocaleString());
+        setElHtml("kpi-stored-footer", `
+          <span>Dải ngày: <span class="text-slate-300">${computeDateRange(state.allReviews)}</span></span>
+        `);
+
+        // Panel 1: Stars
+        setElText("panel-stars-title-text", "Phân Bổ Số Sao Cả 2 Nền Tảng (1 - 5 Sao)");
+        setElText("panel-stars-sub", `Tổng hợp từ ${activeStoredReviews} bài nhận xét`);
+
+        // Panel 2: Sentiment
+        setElText("panel-sent-title-text", "Phân Loại Cảm Xúc Nhận Xét");
+        setElText("panel-sent-sub", `Total: ${activeStoredReviews} bài`);
+
+        // Panel 3: So Sánh 2 Store
+        setElText("panel-platform-title-text", "Chi Tiết Theo Cửa Hàng Ứng Dụng");
+        setElText("panel-platform-sub", "Thông tin cửa hàng và lối tắt đến danh sách nhận xét");
+        renderComparisonBox({
+          androidAvg,
+          androidTotal,
+          androidRevsCount,
+          iosAvg,
+          iosTotal,
+          iosRevsCount,
+        });
       }
 
-      // Cảm xúc (hỗ trợ cả overallSentiment và sentimentCounts)
-      const sentiment = ov.overallSentiment || ov.sentimentCounts || { positive: 0, neutral: 0, negative: 0 };
-      const pos = sentiment.positive ?? 0;
-      const neu = sentiment.neutral ?? 0;
-      const neg = sentiment.negative ?? 0;
+      // Cập nhật phân bổ số sao (Panel 1)
+      const sumStars = Object.values(activeBreakdown).reduce((a, b) => a + b, 0) || 1;
+      for (let s = 1; s <= 5; s++) {
+        const c = activeBreakdown[s] ?? 0;
+        const p = ((c / sumStars) * 100).toFixed(1);
+        setElText(`star-count-${s}`, c.toLocaleString());
+        setElText(`star-pct-${s}`, `${p}%`);
+        setElWidth(`star-bar-${s}`, `${p}%`);
+      }
+
+      // Cập nhật cảm xúc (KPI 4 + Panel 2 Chart + Cards)
+      const pos = activeSentiment.positive ?? 0;
+      const neu = activeSentiment.neutral ?? 0;
+      const neg = activeSentiment.negative ?? 0;
       const totalSent = pos + neu + neg || 1;
       const posPct = ((pos / totalSent) * 100).toFixed(1);
       const neuPct = ((neu / totalSent) * 100).toFixed(1);
       const negPct = ((neg / totalSent) * 100).toFixed(1);
 
-      setElText("kpi-positive-pct", `${posPct}% Tích cực`);
+      setElText("kpi-sentiment-title", scope === 'android' ? "Tỉ Lệ Hài Lòng (Android)" : scope === 'ios' ? "Tỉ Lệ Hài Lòng (iOS)" : "Tỉ Lệ Hài Lòng (Chung)");
+      setElText("kpi-positive-pct", `${posPct}%`);
       setElWidth("bar-pos", `${posPct}%`);
       setElWidth("bar-neu", `${neuPct}%`);
       setElWidth("bar-neg", `${negPct}%`);
 
-      setElText("kpi-pos-count", pos);
-      setElText("kpi-neu-count", neu);
-      setElText("kpi-neg-count", neg);
+      setElText("kpi-pos-count", pos.toLocaleString());
+      setElText("kpi-neu-count", neu.toLocaleString());
+      setElText("kpi-neg-count", neg.toLocaleString());
 
-      setElText("card-pos-count", pos);
-      setElText("card-neu-count", neu);
-      setElText("card-neg-count", neg);
+      setElText("card-pos-count", pos.toLocaleString());
+      setElText("card-pos-pct", `(${posPct}%)`);
+      setElText("card-neu-count", neu.toLocaleString());
+      setElText("card-neu-pct", `(${neuPct}%)`);
+      setElText("card-neg-count", neg.toLocaleString());
+      setElText("card-neg-pct", `(${negPct}%)`);
 
-      renderSentimentChart(sentiment);
-      loadSnapshotsHistory();
+      renderSentimentChart(activeSentiment);
+      renderDailyStackedChart();
+    }
+
+    /**
+     * Chuyển đổi chế độ phân nhóm cho biểu đồ cột chồng theo ngày ('sentiment' hoặc 'platform')
+     * @param grouping Chế độ phân nhóm ('sentiment' | 'platform')
+     */
+    function setDailyChartGrouping(grouping) {
+      state.dailyChartGrouping = grouping;
+
+      const btnSent = document.getElementById("btn-stack-sentiment");
+      const btnPlat = document.getElementById("btn-stack-platform");
+
+      if (btnSent && btnPlat) {
+        if (grouping === 'sentiment') {
+          btnSent.className = "px-2.5 py-1 rounded-md text-[11px] font-medium bg-charcoal-800 text-brand-cyan border border-charcoal-700 transition-colors";
+          btnPlat.className = "px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-white border border-transparent transition-colors";
+        } else {
+          btnPlat.className = "px-2.5 py-1 rounded-md text-[11px] font-medium bg-charcoal-800 text-brand-cyan border border-charcoal-700 transition-colors";
+          btnSent.className = "px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-400 hover:text-white border border-transparent transition-colors";
+        }
+      }
+
+      renderDailyStackedChart();
+    }
+
+    /**
+     * Đăng ký custom interaction mode cho Chart.js để kích hoạt riêng từng cột stack (Android hoặc iOS) khi rê chuột
+     */
+    if (typeof Chart !== 'undefined' && Chart.Interaction && Chart.Interaction.modes) {
+      Chart.Interaction.modes.activeStack = function (chart, e, options, useFinalPosition) {
+        const nearestItems = Chart.Interaction.modes.nearest(chart, e, { intersect: false, axis: 'x' }, useFinalPosition);
+        if (!nearestItems || !nearestItems.length) return [];
+
+        const targetItem = nearestItems[0];
+        const targetStack = chart.data.datasets[targetItem.datasetIndex]?.stack;
+        const targetIndex = targetItem.index;
+
+        const items = [];
+        chart.data.datasets.forEach((dataset, datasetIndex) => {
+          if (dataset.stack === targetStack) {
+            const meta = chart.getDatasetMeta(datasetIndex);
+            if (meta && meta.data && meta.data[targetIndex]) {
+              items.push({
+                element: meta.data[targetIndex],
+                datasetIndex,
+                index: targetIndex
+              });
+            }
+          }
+        });
+        return items;
+      };
+    }
+
+    /**
+     * Kết xuất biểu đồ cột chồng (Stacked Column Chart) tổng hợp số lượng nhận xét theo ngày
+     */
+    function renderDailyStackedChart() {
+      const ctx = document.getElementById("dailyStackedChart");
+      if (!ctx) return;
+
+      const scope = state.overviewScope || 'all';
+      let grouping = state.dailyChartGrouping || 'sentiment';
+
+      // Nếu đang ở scope Android hoặc iOS thì chỉ phân nhóm theo sentiment
+      const groupSwitch = document.getElementById("stacked-group-switch");
+      if (scope !== 'all') {
+        grouping = 'sentiment';
+        if (groupSwitch) groupSwitch.classList.add("hidden");
+      } else {
+        if (groupSwitch) groupSwitch.classList.remove("hidden");
+      }
+
+      // Lọc review theo scope (Chung, Android, iOS)
+      let revs = state.allReviews || [];
+      if (scope === 'android') {
+        revs = revs.filter(r => r.platform === 'android');
+      } else if (scope === 'ios') {
+        revs = revs.filter(r => r.platform === 'ios');
+      }
+
+      // Nhóm review theo ngày đăng bài (createdAt: YYYY-MM-DD)
+      const dateMap = new Map();
+      for (const r of revs) {
+        const d = (r.createdAt || "").slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) continue;
+        if (!dateMap.has(d)) {
+          dateMap.set(d, {
+            date: d,
+            positive: 0,
+            neutral: 0,
+            negative: 0,
+            android: 0,
+            ios: 0,
+            androidPos: 0,
+            androidNeu: 0,
+            androidNeg: 0,
+            iosPos: 0,
+            iosNeu: 0,
+            iosNeg: 0,
+            total: 0
+          });
+        }
+        const item = dateMap.get(d);
+        item.total++;
+
+        const isPos = (r.sentiment === 'positive' || r.rating >= 4);
+        const isNeu = (r.sentiment === 'neutral' || r.rating === 3);
+
+        if (isPos) item.positive++;
+        else if (isNeu) item.neutral++;
+        else item.negative++;
+
+        if (r.platform === 'android') {
+          item.android++;
+          if (isPos) item.androidPos++;
+          else if (isNeu) item.androidNeu++;
+          else item.androidNeg++;
+        } else if (r.platform === 'ios') {
+          item.ios++;
+          if (isPos) item.iosPos++;
+          else if (isNeu) item.iosNeu++;
+          else item.iosNeg++;
+        }
+      }
+
+      // Sắp xếp các ngày theo thứ tự thời gian tăng dần (từ quá khứ đến hiện tại)
+      let sortedDates = Array.from(dateMap.keys()).sort();
+
+      // Áp dụng bộ lọc dải ngày (14, 30, 60, all)
+      const rangeEl = document.getElementById("stacked-chart-range");
+      const rangeVal = rangeEl ? rangeEl.value : "30";
+      if (rangeVal !== 'all') {
+        const limit = parseInt(rangeVal, 10) || 30;
+        if (sortedDates.length > limit) {
+          sortedDates = sortedDates.slice(sortedDates.length - limit);
+        }
+      }
+
+      const labels = sortedDates;
+      let totalShownReviews = 0;
+      for (const d of labels) {
+        totalShownReviews += dateMap.get(d).total;
+      }
+
+      // Cập nhật tóm tắt thông số
+      const countDaysEl = document.getElementById("stacked-days-count");
+      if (countDaysEl) countDaysEl.textContent = labels.length.toLocaleString();
+      const countRevsEl = document.getElementById("stacked-revs-count");
+      if (countRevsEl) countRevsEl.textContent = totalShownReviews.toLocaleString();
+
+      const titleEl = document.getElementById("stacked-chart-title");
+      if (titleEl) {
+        titleEl.textContent = scope === 'android'
+          ? "Số Lượng Nhận Xét Theo Ngày (Google Play)"
+          : scope === 'ios'
+            ? "Số Lượng Nhận Xét Theo Ngày (Apple App Store)"
+            : "Số Lượng Nhận Xét Theo Ngày (Cả 2 Nền Tảng)";
+      }
+
+      const subEl = document.getElementById("stacked-chart-sub");
+      if (subEl) {
+        if (scope === 'all' && grouping === 'sentiment') {
+          subEl.textContent = "Mỗi ngày gồm 2 cột: Cột 1 (Google Play) • Cột 2 (App Store) — Phân tầng theo cảm xúc";
+        } else if (scope === 'all' && grouping === 'platform') {
+          subEl.textContent = "Tổng hợp biến động số lượng nhận xét theo ngày, phân tầng theo nền tảng";
+        } else if (scope === 'android') {
+          subEl.textContent = "Tổng hợp biến động số lượng nhận xét và phân bổ cảm xúc trên Google Play";
+        } else {
+          subEl.textContent = "Tổng hợp biến động số lượng nhận xét và phân bổ cảm xúc trên Apple App Store";
+        }
+      }
+
+      // Chuẩn bị Datasets
+      let datasets = [];
+      if (grouping === 'platform' && scope === 'all') {
+        // Chế độ: Theo Nền Tảng (1 cột gồm 2 màu đại diện cho Android và iOS)
+        datasets = [
+          {
+            label: 'Google Play (Android)',
+            data: labels.map(d => dateMap.get(d).android),
+            backgroundColor: '#3DDC84',
+            borderRadius: 3,
+            stack: 'dailyStack',
+          },
+          {
+            label: 'Apple App Store (iOS)',
+            data: labels.map(d => dateMap.get(d).ios),
+            backgroundColor: '#60A5FA',
+            borderRadius: 3,
+            stack: 'dailyStack',
+          }
+        ];
+      } else if (scope === 'all') {
+        // Chế độ: Cả 2 Nền Tảng - Theo Cảm Xúc (Hiển thị 2 cột: Cột 1 Android, Cột 2 iOS; giữ nguyên 3 màu cảm xúc)
+        datasets = [
+          // Cột 1: Google Play (Android)
+          {
+            label: 'Tích cực (4-5★)',
+            data: labels.map(d => dateMap.get(d).androidPos),
+            backgroundColor: '#10B981',
+            borderRadius: 2,
+            stack: 'android',
+          },
+          {
+            label: 'Trung tính (3★)',
+            data: labels.map(d => dateMap.get(d).androidNeu),
+            backgroundColor: '#F59E0B',
+            borderRadius: 2,
+            stack: 'android',
+          },
+          {
+            label: 'Tiêu cực (1-2★)',
+            data: labels.map(d => dateMap.get(d).androidNeg),
+            backgroundColor: '#F43F5E',
+            borderRadius: 2,
+            stack: 'android',
+          },
+          // Cột 2: Apple App Store (iOS)
+          {
+            label: 'Tích cực (4-5★)',
+            data: labels.map(d => dateMap.get(d).iosPos),
+            backgroundColor: '#10B981',
+            borderRadius: 2,
+            stack: 'ios',
+          },
+          {
+            label: 'Trung tính (3★)',
+            data: labels.map(d => dateMap.get(d).iosNeu),
+            backgroundColor: '#F59E0B',
+            borderRadius: 2,
+            stack: 'ios',
+          },
+          {
+            label: 'Tiêu cực (1-2★)',
+            data: labels.map(d => dateMap.get(d).iosNeg),
+            backgroundColor: '#F43F5E',
+            borderRadius: 2,
+            stack: 'ios',
+          }
+        ];
+      } else {
+        // Chế độ: Đơn nền tảng (Android hoặc iOS) - 1 cột gồm 3 màu cảm xúc
+        datasets = [
+          {
+            label: 'Tích cực (4-5★)',
+            data: labels.map(d => dateMap.get(d).positive),
+            backgroundColor: '#10B981',
+            borderRadius: 3,
+            stack: 'dailyStack',
+          },
+          {
+            label: 'Trung tính (3★)',
+            data: labels.map(d => dateMap.get(d).neutral),
+            backgroundColor: '#F59E0B',
+            borderRadius: 3,
+            stack: 'dailyStack',
+          },
+          {
+            label: 'Tiêu cực (1-2★)',
+            data: labels.map(d => dateMap.get(d).negative),
+            backgroundColor: '#F43F5E',
+            borderRadius: 3,
+            stack: 'dailyStack',
+          }
+        ];
+      }
+
+      if (state.dailyStackedChart) {
+        state.dailyStackedChart.destroy();
+      }
+
+      state.dailyStackedChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets,
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'activeStack',
+            intersect: false,
+          },
+          onClick: (event, elements, chart) => {
+            if (elements && elements.length > 0) {
+              const el = elements[0];
+              const idx = el.index;
+              const clickedDate = labels[idx];
+              const clickedStack = chart.data.datasets[el.datasetIndex]?.stack;
+
+              if (clickedDate) {
+                if (clickedStack === 'android') {
+                  state.filters.platform = 'android';
+                } else if (clickedStack === 'ios') {
+                  state.filters.platform = 'ios';
+                }
+                filterBySpecificDate(clickedDate);
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: {
+                color: '#162032',
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#94A3B8',
+                font: { family: 'JetBrains Mono', size: 10 },
+                maxRotation: 45,
+                minRotation: 0,
+              }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              grid: {
+                color: '#162032',
+                drawBorder: false,
+              },
+              ticks: {
+                color: '#94A3B8',
+                font: { family: 'JetBrains Mono', size: 10 },
+                precision: 0,
+                stepSize: 1,
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              align: 'end',
+              labels: {
+                color: '#E2E8F0',
+                font: { family: 'JetBrains Mono', size: 11 },
+                usePointStyle: true,
+                boxWidth: 8,
+                padding: 12,
+                filter: (legendItem, chartData) => {
+                  // Khi có 6 datasets (2 cột Android & iOS), chỉ hiển thị 3 nhãn đầu tiên để tránh lặp lại
+                  if (chartData.datasets.length === 6) {
+                    return legendItem.datasetIndex < 3;
+                  }
+                  return true;
+                },
+                generateLabels: (chart) => {
+                  const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                  if (chart.data.datasets.length === 6) {
+                    const names = ['Tích cực (4-5★)', 'Trung tính (3★)', 'Tiêu cực (1-2★)'];
+                    return original.slice(0, 3).map((item, idx) => {
+                      item.text = names[idx];
+                      return item;
+                    });
+                  }
+                  return original;
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#162032',
+              titleColor: '#FFFFFF',
+              bodyColor: '#94A3B8',
+              borderColor: '#23324E',
+              borderWidth: 1,
+              padding: 10,
+              bodyFont: { family: 'JetBrains Mono', size: 11 },
+              titleFont: { family: 'JetBrains Mono', size: 12, weight: 'bold' },
+              callbacks: {
+                title: (tooltipItems) => {
+                  if (!tooltipItems || !tooltipItems.length) return '';
+                  const date = tooltipItems[0].label;
+                  const ds = tooltipItems[0].dataset;
+                  if (ds.stack === 'android') {
+                    return `📅 ${date} • Google Play (Android)`;
+                  } else if (ds.stack === 'ios') {
+                    return `📅 ${date} • Apple App Store (iOS)`;
+                  }
+                  return `📅 ${date}`;
+                },
+                label: (context) => {
+                  const val = context.parsed.y;
+                  return ` ${context.dataset.label}: ${val} bài`;
+                },
+                footer: (tooltipItems) => {
+                  if (!tooltipItems || !tooltipItems.length) return '';
+                  let sum = 0;
+                  tooltipItems.forEach(ti => { sum += ti.parsed.y; });
+                  const ds = tooltipItems[0].dataset;
+                  const platName = ds.stack === 'android' ? 'Google Play (Android)' : ds.stack === 'ios' ? 'Apple App Store (iOS)' : '';
+                  if (platName) {
+                    return `\nTổng ${platName}: ${sum} bài\n(Nhấp vào cột để lọc trong Explorer)`;
+                  }
+                  return `\nTổng ngày: ${sum} nhận xét\n(Nhấp vào cột để lọc trong Explorer)`;
+                }
+              }
+            }
+          }
+        }
+      });
     }
 
     /**
      * Vẽ biểu đồ phân loại cảm xúc bằng Chart.js
+     * @param sentiment Đối tượng đếm số lượng cảm xúc { positive, neutral, negative }
      */
     function renderSentimentChart(sentiment) {
       if (!sentiment) return;
@@ -1088,46 +2002,7 @@
       });
     }
 
-    /**
-     * Tải lịch sử snapshots rating
-     */
-    async function loadSnapshotsHistory() {
-      try {
-        const res = await fetch("/api/apps/uniclass/ratings?limit=10");
-        if (!res.ok) return;
-        const json = await res.json();
-        const tbody = document.getElementById("snapshots-table-body");
-        tbody.innerHTML = "";
 
-        if (!json.data || json.data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="py-3 text-center text-slate-500">Chưa có bản ghi snapshot nào.</td></tr>`;
-          return;
-        }
-
-        // Lấy 8 snapshots mới nhất (đảo chiều để mới nhất lên đầu)
-        const recent = [...json.data].reverse().slice(0, 8);
-        for (const snap of recent) {
-          const isAndroid = snap.platform === "android";
-          const row = document.createElement("tr");
-          row.className = "hover:bg-charcoal-850/50 transition-colors";
-          row.innerHTML = `
-            <td class="py-2.5 px-3 text-slate-300">${formatDateTime(snap.collectedAt)}</td>
-            <td class="py-2.5 px-3">
-              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] ${isAndroid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
-                <span class="w-1.5 h-1.5 rounded-full ${isAndroid ? 'bg-brand-android' : 'bg-brand-ios'}"></span>
-                ${isAndroid ? 'Google Play' : 'App Store'}
-              </span>
-            </td>
-            <td class="py-2.5 px-3 font-bold ${snap.averageRating >= 4 ? 'text-emerald-400' : 'text-amber-400'}">${snap.averageRating.toFixed(2)} ★</td>
-            <td class="py-2.5 px-3 text-slate-200">${snap.totalRatings.toLocaleString()}</td>
-            <td class="py-2.5 px-3 text-slate-500 text-[10px] truncate max-w-[120px]" title="${snap.snapshotId}">${snap.snapshotId.slice(0, 8)}...</td>
-          `;
-          tbody.appendChild(row);
-        }
-      } catch (e) {
-        console.warn("Lỗi load snapshots:", e);
-      }
-    }
 
     /**
      * Tải toàn bộ danh sách nhận xét để tìm kiếm và lọc trên Client
@@ -1139,6 +2014,9 @@
         const json = await res.json();
         state.allReviews = json.data || [];
         document.getElementById("total-pool-count").textContent = state.allReviews.length;
+        if (state.overview) {
+          updateOverviewUI(state.overview);
+        }
         applyFiltersAndRender();
         await renderDailyHistoryTable();
       } catch (err) {
@@ -1779,9 +2657,13 @@
         .replace(/'/g, "&#039;");
     }
 
-    function refreshData() {
-      loadOverview();
-      loadAllReviews();
+    /**
+     * Làm mới toàn bộ dữ liệu ứng dụng (Overview, Reviews, Thống kê ngày)
+     */
+    async function refreshData() {
+      await loadOverview();
+      await loadAllReviews();
+      await loadDailyHistory();
       showToast("Đã làm mới dữ liệu thống kê!", "success");
     }
   </script>
