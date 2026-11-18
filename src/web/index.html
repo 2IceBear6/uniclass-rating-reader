@@ -923,6 +923,14 @@
     };
 
     /**
+     * Kiểm tra xem trang web có đang chạy ở chế độ tĩnh (GitHub Pages hoặc tệp cục bộ) hay không
+     * @returns {boolean} true nếu môi trường là GitHub Pages hoặc giao thức file://
+     */
+    function isStaticEnvironment() {
+      return window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:';
+    }
+
+    /**
      * Khởi động tải dữ liệu ban đầu khi trang sẵn sàng
      */
     document.addEventListener("DOMContentLoaded", async () => {
@@ -1242,17 +1250,21 @@
     }
 
     /**
-     * Tải bức tranh tổng quan từ API /api/apps/uniclass/analytics/overview (hoặc fallback tệp tĩnh trên GitHub Pages)
+     * Tải bức tranh tổng quan từ API backend (khi chạy local) hoặc tệp tĩnh (khi chạy trên GitHub Pages)
      */
     async function loadOverview() {
       try {
+        const url = isStaticEnvironment()
+          ? "./data/overview.json"
+          : "/api/apps/uniclass/analytics/overview";
+
         let res;
         try {
-          res = await fetch("/api/apps/uniclass/analytics/overview");
+          res = await fetch(url);
         } catch (_) {}
 
         if (!res || !res.ok) {
-          // Fallback đọc dữ liệu tĩnh khi host trên GitHub Pages hoặc máy chủ tĩnh
+          // Fallback đọc dữ liệu tĩnh nếu gọi API backend thất bại
           res = await fetch("./data/overview.json");
         }
         if (!res.ok) throw new Error("HTTP " + res.status);
@@ -2049,17 +2061,21 @@
 
 
     /**
-     * Tải toàn bộ danh sách nhận xét để tìm kiếm và lọc trên Client (hỗ trợ fallback tệp tĩnh trên GitHub Pages)
+     * Tải toàn bộ danh sách nhận xét từ API backend (khi chạy local) hoặc tệp tĩnh (khi chạy trên GitHub Pages)
      */
     async function loadAllReviews() {
       try {
+        const url = isStaticEnvironment()
+          ? "./data/reviews.json"
+          : "/api/apps/uniclass/reviews?limit=500";
+
         let res;
         try {
-          res = await fetch("/api/apps/uniclass/reviews?limit=500");
+          res = await fetch(url);
         } catch (_) {}
 
         if (!res || !res.ok) {
-          // Fallback đọc dữ liệu tĩnh khi host trên GitHub Pages hoặc máy chủ tĩnh
+          // Fallback đọc dữ liệu tĩnh nếu gọi API backend thất bại
           res = await fetch("./data/reviews.json");
         }
         if (!res.ok) throw new Error("HTTP " + res.status);
