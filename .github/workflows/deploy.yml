@@ -2,8 +2,8 @@ name: UniClass Rating Reader - Crawler & GitHub Pages Deploy
 
 on:
   schedule:
-    # Tự động cào dữ liệu 2 lần/ngày: 01:00 UTC (08:00 AM VN) và 13:00 UTC (20:00 PM VN)
-    - cron: '0 1,13 * * *'
+    # Tự động cào dữ liệu lúc 07:00 AM giờ Việt Nam (tức 00:00 UTC) hàng ngày
+    - cron: '0 0 * * *'
   workflow_dispatch: # Cho phép bấm "Run workflow" thủ công trên GitHub bất cứ lúc nào
   push:
     branches:

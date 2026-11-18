@@ -931,6 +931,24 @@
     }
 
     /**
+     * Định dạng chuỗi ngày giờ theo chuẩn "hh:mm - dd/mm/yyyy"
+     * @param {string | Date} [dateInput] Chuỗi thời gian ISO hoặc đối tượng Date
+     * @returns {string} Chuỗi thời gian định dạng "hh:mm - dd/mm/yyyy"
+     */
+    function formatLastUpdatedDateTime(dateInput) {
+      const d = dateInput ? new Date(dateInput) : new Date();
+      if (isNaN(d.getTime())) return "--:-- - --/--/----";
+
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const year = d.getFullYear();
+
+      return `${hh}:${mm} - ${day}/${month}/${year}`;
+    }
+
+    /**
      * Khởi động tải dữ liệu ban đầu khi trang sẵn sàng
      */
     document.addEventListener("DOMContentLoaded", async () => {
@@ -1271,7 +1289,10 @@
         const data = await res.json();
         state.overview = data;
         updateOverviewUI(data);
-        document.getElementById("last-updated-time").textContent = new Date().toLocaleTimeString("vi-VN");
+        const lastUpdatedEl = document.getElementById("last-updated-time");
+        if (lastUpdatedEl) {
+          lastUpdatedEl.textContent = formatLastUpdatedDateTime(data.updatedAt || new Date());
+        }
       } catch (err) {
         console.error("Lỗi tải overview:", err);
         showToast("Không thể nạp dữ liệu Overview: " + err.message, "error");
@@ -1284,6 +1305,13 @@
      */
     function updateOverviewUI(ov) {
       if (!ov) return;
+
+      if (ov.updatedAt) {
+        const lastUpdatedEl = document.getElementById("last-updated-time");
+        if (lastUpdatedEl) {
+          lastUpdatedEl.textContent = formatLastUpdatedDateTime(ov.updatedAt);
+        }
+      }
 
       const scope = state.overviewScope || 'all';
 

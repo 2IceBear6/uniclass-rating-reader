@@ -32,7 +32,7 @@ export async function main(): Promise<void> {
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   const host = process.env.HOST || "0.0.0.0";
   const dataDir = process.env.DATA_DIR || "./data";
-  const cronExpr = process.env.CRON_SCHEDULE || "0 */6 * * *";
+  const cronExpr = process.env.CRON_SCHEDULE || "0 7 * * *";
 
   console.log("====================================================");
   console.log("          UNICLASS RATING & REVIEW READER           ");
