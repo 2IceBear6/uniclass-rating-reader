@@ -3,11 +3,13 @@ node_modules/
 .pnp/
 .pnp.js
 
-# Data directory (Local filesystem storage - raw and processed collected data)
-data/
+# Data directory: Lưu trữ dữ liệu ứng dụng & lịch sử đánh giá; bỏ qua logs tạm thời
+data/collection-logs/
+data/**/*.tmp
 
 # Build and output
 dist/
+dist-static/
 build/
 coverage/
 scratch/

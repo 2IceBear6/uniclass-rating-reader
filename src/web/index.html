@@ -1242,11 +1242,19 @@
     }
 
     /**
-     * Tải bức tranh tổng quan từ API /api/apps/uniclass/analytics/overview
+     * Tải bức tranh tổng quan từ API /api/apps/uniclass/analytics/overview (hoặc fallback tệp tĩnh trên GitHub Pages)
      */
     async function loadOverview() {
       try {
-        const res = await fetch("/api/apps/uniclass/analytics/overview");
+        let res;
+        try {
+          res = await fetch("/api/apps/uniclass/analytics/overview");
+        } catch (_) {}
+
+        if (!res || !res.ok) {
+          // Fallback đọc dữ liệu tĩnh khi host trên GitHub Pages hoặc máy chủ tĩnh
+          res = await fetch("./data/overview.json");
+        }
         if (!res.ok) throw new Error("HTTP " + res.status);
         const data = await res.json();
         state.overview = data;
@@ -2041,11 +2049,19 @@
 
 
     /**
-     * Tải toàn bộ danh sách nhận xét để tìm kiếm và lọc trên Client
+     * Tải toàn bộ danh sách nhận xét để tìm kiếm và lọc trên Client (hỗ trợ fallback tệp tĩnh trên GitHub Pages)
      */
     async function loadAllReviews() {
       try {
-        const res = await fetch("/api/apps/uniclass/reviews?limit=500");
+        let res;
+        try {
+          res = await fetch("/api/apps/uniclass/reviews?limit=500");
+        } catch (_) {}
+
+        if (!res || !res.ok) {
+          // Fallback đọc dữ liệu tĩnh khi host trên GitHub Pages hoặc máy chủ tĩnh
+          res = await fetch("./data/reviews.json");
+        }
         if (!res.ok) throw new Error("HTTP " + res.status);
         const json = await res.json();
         state.allReviews = json.data || [];
@@ -2572,9 +2588,15 @@
     }
 
     /**
-     * Kích hoạt thủ công chu kỳ cào dữ liệu qua POST /api/collector/trigger
+     * Kích hoạt thủ công chu kỳ cào dữ liệu qua POST /api/collector/trigger (hỗ trợ thông báo hướng dẫn khi chạy trên GitHub Pages)
      */
     async function triggerManualCrawl() {
+      const isGitHubPages = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:';
+      if (isGitHubPages) {
+        showToast("Website đang chạy trên GitHub Pages. Dữ liệu được cào tự động 2 lần/ngày qua GitHub Actions (hoặc bấm 'Run workflow' trên tab Actions của GitHub)!", "info");
+        return;
+      }
+
       const btn = document.getElementById("btn-trigger-crawl");
       const spinner = document.getElementById("crawl-spinner");
       const icon = document.getElementById("crawl-icon");

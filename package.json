@@ -12,7 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "tsx src/index.ts",
-    "crawl": "tsx src/cli/crawl.ts"
+    "crawl": "tsx src/cli/crawl.ts",
+    "build:static": "tsx src/cli/export-static.ts"
   },
   "keywords": [
     "uniclass",

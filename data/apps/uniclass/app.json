@@ -1,0 +1,23 @@
+{
+  "id": "uniclass",
+  "name": "UniClass: Học Online Lớp 1-9",
+  "organization": "UniClass",
+  "scope": "uniclass-only",
+  "platforms": {
+    "android": {
+      "name": "UniClass: Học Online Lớp 1-9",
+      "packageId": "com.edupia.edupiaclass.vn",
+      "country": "vn",
+      "enabled": true
+    },
+    "ios": {
+      "name": "UniClass: Học Online Lớp 1-9",
+      "appStoreId": "6475161683",
+      "country": "vn",
+      "enabled": true
+    }
+  },
+  "createdAt": "2026-11-16T15:00:00.000Z",
+  "updatedAt": "2026-11-16T15:00:00.000Z"
+}
+

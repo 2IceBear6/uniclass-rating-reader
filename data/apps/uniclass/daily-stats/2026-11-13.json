@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-13",
+  "appId": "uniclass",
+  "totalNewReviews": 7,
+  "sentimentCounts": {
+    "positive": 7,
+    "neutral": 0,
+    "negative": 0
+  },
+  "platformBreakdown": {
+    "android": {
+      "newReviews": 7,
+      "averageRating": 5
+    },
+    "ios": {
+      "newReviews": 0,
+      "averageRating": 0
+    }
+  },
+  "latestRatingSnapshot": {},
+  "calculatedAt": "2026-11-17T03:29:48.261Z"
+}

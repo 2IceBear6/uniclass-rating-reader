@@ -1,0 +1,82 @@
+name: UniClass Rating Reader - Crawler & GitHub Pages Deploy
+
+on:
+  schedule:
+    # Tự động cào dữ liệu 2 lần/ngày: 01:00 UTC (08:00 AM VN) và 13:00 UTC (20:00 PM VN)
+    - cron: '0 1,13 * * *'
+  workflow_dispatch: # Cho phép bấm "Run workflow" thủ công trên GitHub bất cứ lúc nào
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - '.gitignore'
+
+# Cấp quyền ghi commit data và deploy GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  crawl-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 1. Checkout mã nguồn
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 2. Cài đặt Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 3. Cài đặt Dependencies
+        run: npm ci
+
+      - name: 4. Cài đặt Playwright Browser (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      # Chỉ chạy cào dữ liệu khi chạy theo lịch định kỳ hoặc bấm Run workflow thủ công
+      - name: 5. Chạy trình cào dữ liệu UniClass (Google Play & App Store)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: npm run crawl
+
+      - name: 6. Commit & Push dữ liệu mới vào repository
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            git commit -m "chore(data): auto-update reviews & ratings [skip ci]"
+            git push
+          else
+            echo "Không có nhận xét hoặc snapshot mới cần commit."
+          fi
+
+      - name: 7. Xuất bản website tĩnh cho GitHub Pages
+        run: npm run build:static
+
+      - name: 8. Cấu hình GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 9. Upload Artifact GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist-static'
+
+      - name: 10. Deploy lên GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

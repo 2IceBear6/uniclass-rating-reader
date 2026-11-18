@@ -1,0 +1,19 @@
+{
+  "version": "1.0.0",
+  "scope": "uniclass-only",
+  "description": "Registry các ứng dụng UniClass được phép theo dõi trong hệ thống",
+  "apps": [
+    {
+      "id": "uniclass",
+      "name": "UniClass: Học Online Lớp 1-9",
+      "configPath": "apps/uniclass/app.json",
+      "platforms": {
+        "android": "com.edupia.edupiaclass.vn",
+        "ios": "6475161683"
+      },
+      "active": true
+    }
+  ],
+  "updatedAt": "2026-11-16T15:00:00.000Z"
+}
+
