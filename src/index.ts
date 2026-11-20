@@ -32,7 +32,8 @@ export async function main(): Promise<void> {
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   const host = process.env.HOST || "0.0.0.0";
   const dataDir = process.env.DATA_DIR || "./data";
-  const cronExpr = process.env.CRON_SCHEDULE || "0 7 * * *";
+  // Mặc định chạy 2 lần mỗi ngày: 01:15 AM (đêm) và 07:15 AM (sáng)
+  const cronExpr = process.env.CRON_SCHEDULE || "15 1,7 * * *";
 
   console.log("====================================================");
   console.log("          UNICLASS RATING & REVIEW READER           ");
