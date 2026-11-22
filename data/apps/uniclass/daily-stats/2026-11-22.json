@@ -20,12 +20,12 @@
   "latestRatingSnapshot": {
     "android": {
       "average": 4.65,
-      "total": 1147
+      "total": 1150
     },
     "ios": {
       "average": 4.18,
-      "total": 582
+      "total": 583
     }
   },
-  "calculatedAt": "2026-11-22T06:50:50.634Z"
+  "calculatedAt": "2026-11-22T23:39:56.919Z"
 }
