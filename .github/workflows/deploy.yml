@@ -2,10 +2,10 @@ name: UniClass Rating Reader - Crawler & GitHub Pages Deploy
 
 on:
   schedule:
-    # 1. Tự động cào dữ liệu ban đêm lúc 01:15 AM giờ Việt Nam (18:15 UTC)
-    - cron: '15 18 * * *'
-    # 2. Tự động cào dữ liệu ban sáng lúc 07:15 AM giờ Việt Nam (00:15 UTC)
-    - cron: '15 0 * * *'
+    # 1. Tự động cào dữ liệu ban đêm lúc 01:15 AM giờ Việt Nam (23:00 UTC)
+    - cron: '0 23 * * *'
+    # 2. Tự động cào dữ liệu ban sáng lúc 07:15 AM giờ Việt Nam (06:00 UTC)
+    - cron: '0 16 * * *'
   workflow_dispatch: # Cho phép bấm "Run workflow" thủ công trên GitHub bất cứ lúc nào
   push:
     branches:
@@ -25,11 +25,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  crawl-and-deploy:
+  # Job 1: Cào dữ liệu, commit push và chuẩn bị artifact web tĩnh
+  crawl-and-build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: 1. Checkout mã nguồn
@@ -77,6 +75,14 @@ jobs:
         with:
           path: './dist-static'
 
+  # Job 2: Đẩy artifact lên GitHub Pages (chờ Job 1 hoàn thành xong mới chạy)
+  deploy:
+    needs: crawl-and-build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: 10. Deploy lên GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
